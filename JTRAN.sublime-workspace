@@ -4,6 +4,14 @@
 		"selected_items":
 		[
 			[
+				"V",
+				"Vector_b\tstatement"
+			],
+			[
+				"K",
+				"K_Global\tstatement"
+			],
+			[
 				"job",
 				"job_data\tclass"
 			],
@@ -67,6 +75,24 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "Code/input2D.inp",
+			"settings":
+			{
+				"buffer_size": 451,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Code/JTRAN_SOLVER2D.py",
+			"settings":
+			{
+				"buffer_size": 5217,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		}
 	],
 	"build_system": "Packages/Python/Python.sublime-build",
 	"build_system_choices":
@@ -202,8 +228,72 @@
 	"groups":
 	[
 		{
+			"selected": 0,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "Code/input2D.inp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 451,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								39,
+								39
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 1,
+					"file": "Code/JTRAN_SOLVER2D.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5217,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5197,
+								5197
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 3648.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				}
 			]
 		}
 	],
@@ -224,11 +314,18 @@
 				0,
 				1,
 				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
 			]
 		],
 		"cols":
 		[
 			0.0,
+			0.267708333333,
 			1.0
 		],
 		"rows":
@@ -291,7 +388,7 @@
 	"show_minimap": true,
 	"show_open_files": false,
 	"show_tabs": true,
-	"side_bar_visible": true,
+	"side_bar_visible": false,
 	"side_bar_width": 195.0,
 	"status_bar_visible": true,
 	"template_settings":

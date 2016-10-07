@@ -14,13 +14,13 @@ Bar_1	BAR 	AL7075-T6	1e-3
 Bar_2 	BAR 	AL7075-T6	2e-3 	
 #
 #LOADS
-#NAME	NODE	FX	FY	FX	MX	MY	MZ
-Force_1	3		0	-1000	0	0	0	0	
+#NAME	NODE	FX	FY	MZ
+Force_1	2		0	-1000 0
 #
 #CONSTRAINS
-#NAME	NODE	X	Y	Z	RX	RY	RZ
-Pin_1	1		0	0	0	None	None	None
-Pin_2	3		0	0	0	None	None	None
+#NAME	NODE	X	Y 	RZ
+Pin_1	1		0	0	None
+Pin_2	3		0	0	None
 #
 #ELEMENTS
 #ELEMENT	PROPERTIE NODES...
@@ -28,7 +28,7 @@ Pin_2	3		0	0	0	None	None	None
 2	Bar_2	3	2
 #
 #NODES
-#NODE X Y Z RX RY RZ
-1	0	0.5	0	0	0	0
-2	1	0.5	0	0	0	0
-3	0	0	0	0	0	0
+#NODE 	X	Y 	RZ
+1		0	0.5	0
+2		1	0.5	0
+3		0	0	0

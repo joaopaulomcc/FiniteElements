@@ -1,5 +1,6 @@
 import numpy as np 
 import math
+import scipy 
 
 ################################################################
 #Classes
@@ -19,25 +20,19 @@ class propertie:
 		self.parameters = parameters
 
 class load:
-	def __init__(self, name, node, FX, FY, FZ, MX, MY, MZ):
+	def __init__(self, name, node, FX, FY, MZ):
 		self.name = name
 		self.node = node
 		self.FX = FX
 		self.FY = FY
-		self.FZ = FZ
-		self.MX = MX
-		self.MY = MY
 		self.MZ = MZ
 
 class constrain:
-	def __init__(self, name, node, X, Y, Z, RX, RY, RZ):
+	def __init__(self, name, node, X, Y, RZ):
 		self.name = name
 		self.node = node
 		self.X = X
 		self.Y = Y
-		self.Z = Z
-		self.RX = RX
-		self.RY = RY
 		self.RZ = RZ
 
 class job_data:
@@ -100,10 +95,10 @@ def read_input_file(input_file):
 				properties[line_s[0]] = propertie(line_s[0], line_s[1], line_s[2], line_s[3:])
 	
 			elif flag == "loads":
-				loads[line_s[0]] = load(line_s[0], int(line_s[1]), float(line_s[2]), float(line_s[3]), float(line_s[4]), float(line_s[5]), float(line_s[6]), float(line_s[7]) )
+				loads[line_s[0]] = load(line_s[0], int(line_s[1]), float(line_s[2]), float(line_s[3]), float(line_s[4]))
 	
 			elif flag == "constrains":
-				constrains[line_s[0]] = constrain(line_s[0], int(line_s[1]), line_s[2], line_s[3], line_s[4], line_s[5], line_s[6], line_s[7])
+				constrains[line_s[0]] = constrain(line_s[0], int(line_s[1]), line_s[2], line_s[3], line_s[4])
 	
 			elif flag == "elements":
 				elements.append(line_s)
@@ -128,12 +123,10 @@ def BAR(element, job):
 	Node2 = job.nodes[int(element[3]) - 1]
 	
 	X1 = float(Node1[1])
-	Y1 = float(Node1[2])
-	Z1 = float(Node1[3])
+	Y1 = float(Node1[2])	
 
 	X2 = float(Node2[1])
-	Y2 = float(Node2[2])
-	Z2 = float(Node2[3])
+	Y2 = float(Node2[2])	
 
 	L = math.sqrt((X2 - X1)**2 + (Y2 - Y1)**2)
 
@@ -145,33 +138,75 @@ def BAR(element, job):
 
 	K_Local = np.dot(np.dot(np.transpose(T), K), T)
 
+	#F_Local = np.array
+	#TODO Think about the forces, how to apply then to the elements
+
 	return K_Local
 ##################################################################################
 #Read Input File
 
-input_file = open("input.inp", 'r')
+input_file = open("input2d.inp", 'r')
 job = read_input_file(input_file)
 
-K_Global = np.zeros((len(job.nodes), len(job.nodes)))
-DOF_Global = np.zeros((len(job.nodes), 1))
-F_Global = np.zeros((len(job.nodes), 1))
+N_DOF = 3*len(job.nodes)
+K_Global = np.zeros((N_DOF, N_DOF))
+DOF_Global = np.zeros((N_DOF, 1))
+F_Global = np.zeros((N_DOF, 1))
 
-for element in job.elements:
+for element in job.elements:	
+
 	if job.properties[element[1]].kind == "BAR":
 		K_Local = BAR(element, job)
+		K_MAP = np.zeros((1, 4))
+		K_MAP[0][0] = int(element[2])*3 - 3
+		K_MAP[0][1] = int(element[2])*3 - 2
+		K_MAP[0][2] = int(element[3])*3 - 3
+		K_MAP[0][3] = int(element[3])*3 - 2
 
+		
 		for i in range(len(K_Local)):
 			for j in range(len(K_Local)):
-				#i_g = int(element[i + 1]) - 1
-				#j_g = int(element[j + 1]) - 1
 
-				print(i)
-				print(element[i + 2])
-				print(j)
-				print(element[j + 2])
+				i_g = int(K_MAP[0][i])
+				j_g = int(K_MAP[0][j])				
 
-				#K_Global[i_g][j_g] += K_Local[i][j]
+				K_Global[i_g][j_g] += K_Local[i][j]
 				#Relate nodes with Degrees of Freedon
 
+for key, value in job.loads.items():
 
+	single_load = value
+	F_Global[int(single_load.node)*3 - 3] = float(single_load.FX)
+	F_Global[int(single_load.node)*3 - 2] = float(single_load.FY)
+	F_Global[int(single_load.node)*3 - 1] = float(single_load.MZ)
+
+print(F_Global)
 	
+DOF = [ 'None' for x in range(N_DOF)]
+
+for key, value in job.constrains.items():
+
+	single_constrain = value
+	DOF[int(single_constrain.node)*3 - 3] = single_constrain.X
+	DOF[int(single_constrain.node)*3 - 2] = single_constrain.Y
+	DOF[int(single_constrain.node)*3 - 1] = single_constrain.RZ
+
+unknown = []
+
+for i, D_DOF in enumerate(DOF):
+	if D_DOF == 'None':
+		unknown.append(i)
+
+
+Matrix_A = np.zeros((len(unknown), len(unknown)))
+Vector_b = np.zeros((len(unknown), 1))
+
+for i, i_g in enumerate(unknown):
+	Vector_b[i][0] = F_Global[i_g][0]
+	for j, j_g in enumerate(unknown):
+		Matrix_A[i][j] = K_Global[i_g][j_g]
+
+print(Matrix_A)
+print(Vector_b)
+
+displacements = np.linalg.solve(Matrix_A, Vector_b)
