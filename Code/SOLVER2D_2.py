@@ -1,9 +1,22 @@
-import numpy as np 
+import numpy as np
 import math
-import scipy 
 
 ################################################################
-#Classes
+# Classes
+# Classes created in order to store the data retrieved from the
+# input file, they are:
+# - material: stores the material name and physical properties
+#             density, young's modulus and poisson's ratio
+# - propertie: a propertie have a kind (BAR or BEAM), a material
+#              and some parameters, for the BAR the parameters
+#              are only the area, for the BEAM the parameters
+#              are the area and the moment of inertia
+# - load: a load have a kind, CONCENTRATED or DISTRIBUTED,
+#         for the CONCENTRATED load the parameters are the node
+#         where the force is applied and FX, FY and MZ, for the
+#         DISTRIBUTED load the parameters are the two nodes
+#         between wich the load is applied and QX and QY.
+
 
 class material:
     def __init__(self, name, density, young, poisson, *args):
@@ -12,6 +25,7 @@ class material:
         self.young = young
         self.poisson = poisson
 
+
 class propertie:
     def __init__(self, name, kind, material, parameters, *args):
         self.name = name
@@ -19,13 +33,13 @@ class propertie:
         self.material = material
         self.parameters = parameters
 
+
 class load:
-    def __init__(self, name, node, FX, FY, MZ):
+    def __init__(self, name, kind, parameters, *args):
         self.name = name
-        self.node = node
-        self.FX = FX
-        self.FY = FY
-        self.MZ = MZ
+        self.kind = kind
+        self.paramenters = parameters
+
 
 class constrain:
     def __init__(self, name, node, X, Y, RZ):
@@ -35,8 +49,12 @@ class constrain:
         self.Y = Y
         self.RZ = RZ
 
+
 class job_data:
-    def __init__(self, materials, properties, loads, constrains, elements, nodes):
+    def __init__(self, title, analysis, materials, properties,
+                 loads, constrains, elements, nodes):
+        self.title = title
+        self.analysis = analysis
         self.materials = materials
         self.properties = properties
         self.loads = loads
@@ -44,8 +62,10 @@ class job_data:
         self.elements = elements
         self.nodes = nodes
 
-##################################################################################
-#Functions
+
+###############################################################################
+# Functions
+
 def read_input_file(input_file):
     materials = {}
     properties = {}
@@ -83,22 +103,36 @@ def read_input_file(input_file):
         else:
 
             if flag == "title":
-                title = line
+                title = line.strip()
 
             elif flag == "analysis":
-                analysis = line
+                analysis = line.strip()
 
             elif flag == "materials":
-                materials[line_s[0]] = material(line_s[0], float(line_s[1]), float(line_s[2]), float(line_s[3]))
+                materials[line_s[0]] = material(line_s[0],
+                                                float(line_s[1]),
+                                                float(line_s[2]),
+                                                float(line_s[3]))
 
             elif flag == "properties":
-                properties[line_s[0]] = propertie(line_s[0], line_s[1], line_s[2], line_s[3:])
+                properties[line_s[0]] = propertie(line_s[0],
+                                                  line_s[1],
+                                                  line_s[2],
+                                                  line_s[3:])
 
             elif flag == "loads":
-                loads[line_s[0]] = load(line_s[0], int(line_s[1]), float(line_s[2]), float(line_s[3]), float(line_s[4]))
+                loads[line_s[0]] = load(line_s[0],
+                                        int(line_s[1]),
+                                        float(line_s[2]),
+                                        float(line_s[3]),
+                                        float(line_s[4]))
 
             elif flag == "constrains":
-                constrains[line_s[0]] = constrain(line_s[0], int(line_s[1]), line_s[2], line_s[3], line_s[4])
+                constrains[line_s[0]] = constrain(line_s[0],
+                                                  int(line_s[1]),
+                                                  line_s[2],
+                                                  line_s[3],
+                                                  line_s[4])
 
             elif flag == "elements":
                 elements.append(line_s)
@@ -106,11 +140,13 @@ def read_input_file(input_file):
             elif flag == "nodes":
                 nodes.append(line_s)
 
-    return job_data(materials, properties, loads, constrains, elements, nodes)
+    return job_data(title, analysis, materials,
+                    properties, loads, constrains, elements, nodes)
+
 
 def BAR(element, job):
 
-    # Função que calcula a matrix de rigidez para um elemento de barra
+    # 
 
     element_propertie_name = element[1]
     element_propertie = job.properties[element_propertie_name]
@@ -132,46 +168,49 @@ def BAR(element, job):
 
     L = math.sqrt((X2 - X1)**2 + (Y2 - Y1)**2)
 
-    c = (X2 - X1)/L
-    s = (Y2 - Y1)/L
+    c = (X2 - X1) / L
+    s = (Y2 - Y1) / L
 
-    K = np.array([[1, -1], [-1, 1]])*(E*A/L)
+    K = np.array([[1, -1], [-1, 1]]) * (E * A / L)
     T = np.array([[c, s, 0, 0], [0, 0, c, s]])
 
     K_Local = np.dot(np.dot(np.transpose(T), K), T)
 
     # F_Local = np.array
     # TODO Think about the forces, how to apply then to the elements
-
     return K_Local
-##################################################################################
+
+
+def BEAM(element, job):
+    pass
+    
+##############################################################################
 # Read Input File
 
 input_file = open("input2d.inp", 'r')
 job = read_input_file(input_file)
 
-N_DOF = 3*len(job.nodes)
+N_DOF = 3 * len(job.nodes)
 K_Global = np.zeros((N_DOF, N_DOF))
 DOF_Global = np.zeros((N_DOF, 1))
 F_Global = np.zeros((N_DOF, 1))
 
 active_DOFs = [False for x in range(N_DOF)]
 
-for element in job.elements:	
+for element in job.elements:
 
     if job.properties[element[1]].kind == "BAR":
 
         K_Local = BAR(element, job)
         K_MAP = np.zeros(4)
-        K_MAP[0] = int(element[2])*3 - 3
-        K_MAP[1] = int(element[2])*3 - 2
-        K_MAP[2] = int(element[3])*3 - 3
-        K_MAP[3] = int(element[3])*3 - 2
+        K_MAP[0] = int(element[2]) * 3 - 3
+        K_MAP[1] = int(element[2]) * 3 - 2
+        K_MAP[2] = int(element[3]) * 3 - 3
+        K_MAP[3] = int(element[3]) * 3 - 2
 
         for position in K_MAP:
 
             active_DOFs[int(position)] = True
-
 
         for i in range(len(K_Local)):
             for j in range(len(K_Local)):
@@ -182,18 +221,49 @@ for element in job.elements:
                 K_Global[i_g][j_g] += K_Local[i][j]
                 # Relate nodes with Degrees of Freedon
 
+    if job.properties[element[1]].kind == "BEAM":
+        pass
 
+# Ceate F_Global Matriz
 for key, value in job.loads.items():
 
     single_load = value
-    F_Global[int(single_load.node)*3 - 3] = float(single_load.FX)
-    F_Global[int(single_load.node)*3 - 2] = float(single_load.FY)
-    F_Global[int(single_load.node)*3 - 1] = float(single_load.MZ)
 
+    if single_load.kind == "CONCENTRATED":
+        node = int(single_load.parameters[0])
+        FX = float(single_load.parameters[1])
+        FY = float(single_load.parameters[2])
+        MZ = float(single_load.parameters[3])
+
+        F_Global[node * 3 - 3] += float(FX)
+        F_Global[node * 3 - 2] += float(FY)
+        F_Global[node * 3 - 1] += float(MZ)
+
+    elif single_load.kind == "DISTRIBUTED":
+        node1_number = int(single_load.parameters[0])
+        node1_vector = job.nodes(node1_number - 1)
+        node1_x = node1_vector[1]
+        node1_y = node1_vector[2]
+        node2_number = int(single_load.parameters[1])
+        node2_vector = job.nodes(node1_number - 1)
+        node2_x = node2_vector[1]
+        node2_y = node2_vector[2]
+
+        L = math.sqrt((node2_x - node1_x)**2 + (node2_y - node1_y)**2)
+        QX = float(single_load.parameters[2])
+        QY = float(single_load.parameters[3])
+
+        F_Global[node1_number * 3 - 3] += float(QX * L / 2)
+        F_Global[node1_number * 3 - 2] += float(QY * L / 2)
+        F_Global[node1_number * 3 - 1] += float(QY * L**2 / 12)
+
+        F_Global[node2_number * 3 - 3] += float(QX * L / 2)
+        F_Global[node2_number * 3 - 2] += float(QY * L / 2)
+        F_Global[node2_number * 3 - 1] += float(-QY * L**2 / 12)
 
 inactive_DOFs = []
 for i, value in enumerate(active_DOFs):
-    if value == False:
+    if not value:
         inactive_DOFs.append(i)
 
 K_Global = np.delete(K_Global, inactive_DOFs, 0)
@@ -205,9 +275,9 @@ DOF = ["Free" for x in range(N_DOF)]
 for key, value in job.constrains.items():
 
     single_constrain = value
-    DOF[int(single_constrain.node)*3 - 3] = single_constrain.X
-    DOF[int(single_constrain.node)*3 - 2] = single_constrain.Y
-    DOF[int(single_constrain.node)*3 - 1] = single_constrain.RZ
+    DOF[int(single_constrain.node) * 3 - 3] = single_constrain.X
+    DOF[int(single_constrain.node) * 3 - 2] = single_constrain.Y
+    DOF[int(single_constrain.node) * 3 - 1] = single_constrain.RZ
 
 
 DOF = np.delete(DOF, inactive_DOFs, 0)
@@ -225,11 +295,10 @@ for i, i_g in enumerate(unknown):
     for j, j_g in enumerate(unknown):
         Matrix_A[i][j] = K_Global[i_g][j_g]
 
-print(Matrix_A)
-print(Vector_b)
 
 displacements = np.linalg.solve(Matrix_A, Vector_b)
-print(displacements)
 
-for i in range(10):
-    print("Hello")
+print(job.title)
+print(job.analysis)
+print("Displacements")
+print(displacements)

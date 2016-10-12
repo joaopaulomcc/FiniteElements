@@ -85,12 +85,12 @@
 			}
 		},
 		{
-			"file": "Code/JTRAN_SOLVER2D.py",
+			"file": "Code/SOLVER2D.py",
 			"settings":
 			{
-				"buffer_size": 5217,
+				"buffer_size": 6573,
 				"encoding": "UTF-8",
-				"line_ending": "Windows"
+				"line_ending": "Unix"
 			}
 		}
 	],
@@ -155,6 +155,8 @@
 	],
 	"file_history":
 	[
+		"/C/Users/Jp/AppData/Roaming/Sublime Text 3/Packages/User/Anaconda.sublime-settings",
+		"/C/Users/Jp/Documents/GitHub/FiniteElements/Code/JTRAN_SOLVER2D.py",
 		"/C/Users/JPMCOST/Documents/PEE/Fase II/Matérias ITA/AE-705 - Elementos Finitos e Modelamento Estrutural/JTRAN/Code/input.inp",
 		"/C/Users/JPMCOST/Documents/PEE/Fase II/Matérias ITA/AE-705 - Elementos Finitos e Modelamento Estrutural/JTRAN/Code/JTRAN_SOLVER.py",
 		"/C/Users/JPMCOST/Documents/PEE/Programa Shadow.md",
@@ -256,7 +258,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 1,
 					"type": "text"
 				}
 			]
@@ -267,31 +269,32 @@
 			[
 				{
 					"buffer": 1,
-					"file": "Code/JTRAN_SOLVER2D.py",
+					"file": "Code/SOLVER2D.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5217,
+						"buffer_size": 6573,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								5197,
-								5197
+								6137,
+								6137
 							]
 						],
 						"settings":
 						{
 							"syntax": "Packages/Python/Python.sublime-syntax",
-							"translate_tabs_to_spaces": false
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 3648.0,
+						"translation.y": 4290.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 0,
 					"type": "text"
 				}
 			]
@@ -381,14 +384,14 @@
 		],
 		"width": 0.0
 	},
-	"selected_group": 0,
+	"selected_group": 1,
 	"settings":
 	{
 	},
 	"show_minimap": true,
 	"show_open_files": false,
 	"show_tabs": true,
-	"side_bar_visible": false,
+	"side_bar_visible": true,
 	"side_bar_width": 195.0,
 	"status_bar_visible": true,
 	"template_settings":
