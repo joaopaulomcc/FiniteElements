@@ -15,23 +15,20 @@ Bar_2 	BAR 	AL7075-T6	2e-4
 #
 #LOADS
 #NAME	KIND PARAMETERS...
-                        NODE FX FY MZ
-                        NODE1 NODE2 QX QY
-Force_1 CONCENTRATED    2   0	-1000 0
-Distributed_1 DISTRIBUTED 1 2 -100 0
+Force_1 CONCENTRATED    1   0	-1000 0
 #
 #CONSTRAINS
 #NAME	NODE	X	Y 	RZ
-Pin_1	1		0	0	Free
-Pin_2	3		0	0	Free
+Pin_1	0		0	0	FREE
+Pin_2	2		0	0	FREE
 #
 #ELEMENTS
 #ELEMENT	PROPERTIE NODES...
-1	Bar_1	1	2
-2	Bar_2	3	2
+0	Bar_1	0	1
+1	Bar_2	2	1
 #
 #NODES
 #NODE 	X	Y 	RZ
-1		0	0.5	0
-2		1	0.5	0
-3		0	0	0
+0		0	0.5	0
+1		1	0.5	0
+2		0	0	0
