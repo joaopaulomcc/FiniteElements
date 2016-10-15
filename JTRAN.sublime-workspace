@@ -4,64 +4,76 @@
 		"selected_items":
 		[
 			[
+				"result",
+				"results_sl	statement"
+			],
+			[
+				"app",
+				"applied_loads	statement"
+			],
+			[
+				"in",
+				"instance"
+			],
+			[
 				"V",
-				"Vector_b\tstatement"
+				"Vector_b	statement"
 			],
 			[
 				"K",
-				"K_Global\tstatement"
+				"K_Global	statement"
 			],
 			[
 				"job",
-				"job_data\tclass"
+				"job_data	class"
 			],
 			[
 				"materia",
-				"materials\tstatement"
+				"materials	statement"
 			],
 			[
 				"constrai",
-				"constrains\tstatement"
+				"constrains	statement"
 			],
 			[
 				"input",
-				"InterruptedError\tclass"
+				"InterruptedError	class"
 			],
 			[
 				"sto",
-				"stock_data\tstatement"
+				"stock_data	statement"
 			],
 			[
 				"read",
-				"readCSV\tstatement"
+				"readCSV	statement"
 			],
 			[
 				"QA",
-				"QAction\tclass"
+				"QAction	class"
 			],
 			[
 				"close",
-				"close_application\tfunction"
+				"close_application	function"
 			],
 			[
 				"tri",
-				"triggered\tfunction"
+				"triggered	function"
 			],
 			[
 				"minimum",
-				"minimumSizeHint\tfunction"
+				"minimumSizeHint	function"
 			],
 			[
 				"QCo",
-				"QCoreApplication\tclass"
+				"QCoreApplication	class"
 			],
 			[
 				"Qt",
-				"QtGui\tmodule"
+				"QtGui	module"
 			],
 			[
 				"QI",
-				"QIcon\tclass"
+				"QIcon	class"
 			],
 			[
 				"se",
@@ -76,20 +88,42 @@
 	"buffers":
 	[
 		{
-			"file": "Code/input2D.inp",
+			"file": "Code/input2D_2.inp",
 			"settings":
 			{
-				"buffer_size": 451,
-				"encoding": "UTF-8",
+				"buffer_size": 473,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Code/Simple_Beam.input",
+			"settings":
+			{
+				"buffer_size": 1415,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "Code/SOLVER2D.py",
+			"file": "Code/Simple_Truss.input",
 			"settings":
 			{
-				"buffer_size": 6573,
-				"encoding": "UTF-8",
+				"buffer_size": 963,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Code/SOLVER2D_2.py",
+			"settings":
+			{
+				"buffer_size": 14318,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Code/PREPROCESSOR2D.py",
+			"settings":
+			{
+				"buffer_size": 10519,
 				"line_ending": "Unix"
 			}
 		}
@@ -151,10 +185,15 @@
 	},
 	"expanded_folders":
 	[
-		"/C/Users/Jp/Documents/GitHub/FiniteElements/Code"
+		"/C/Users/JPMCOST/Documents/PEE/Fase II/Matérias ITA/AE-705 - Elementos Finitos e Modelamento Estrutural/FiniteElements-master/Code"
 	],
 	"file_history":
 	[
+		"/C/Users/JPMCOST/Documents/Programas/Sublime Text/Data/Packages/Default/Preferences.sublime-settings",
+		"/C/Users/JPMCOST/Documents/Programas/Sublime Text/Data/Packages/User/Preferences.sublime-settings",
+		"/C/Users/JPMCOST/Documents/PEE/Fase II/Matérias ITA/AE-705 - Elementos Finitos e Modelamento Estrutural/FiniteElements-master/Code/Simple Truss_results.out",
+		"/C/Users/JPMCOST/Documents/PEE/Fase II/Matérias ITA/AE-705 - Elementos Finitos e Modelamento Estrutural/FiniteElements-master/Code/input2D.inp",
+		"/C/Users/JPMCOST/Documents/PEE/Fase II/Matérias ITA/AE-705 - Elementos Finitos e Modelamento Estrutural/FiniteElements-master/Code/SOLVER2D.py",
 		"/C/Users/Jp/AppData/Roaming/Sublime Text 3/Packages/User/Anaconda.sublime-settings",
 		"/C/Users/Jp/Documents/GitHub/FiniteElements/Code/JTRAN_SOLVER2D.py",
 		"/C/Users/JPMCOST/Documents/PEE/Fase II/Matérias ITA/AE-705 - Elementos Finitos e Modelamento Estrutural/JTRAN/Code/input.inp",
@@ -207,6 +246,15 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"results",
+			"results_sl",
+			"actIe_DOFs",
+			"inactIe_DOFs",
+			"Av",
+			"Lv",
+			"Iv",
+			"Ev",
+			"Kv",
 			"line",
 			"rafael",
 			"mdates",
@@ -219,6 +267,15 @@
 		"regex": false,
 		"replace_history":
 		[
+			"results_global",
+			"results_active",
+			"active_DOFs",
+			"inactive_DOFs",
+			"A",
+			"L",
+			"I",
+			"E",
+			"K",
 			"line_s"
 		],
 		"reverse": false,
@@ -230,24 +287,24 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 1,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "Code/input2D.inp",
+					"file": "Code/input2D_2.inp",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 451,
+						"buffer_size": 473,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								39,
-								39
+								0,
+								0
 							]
 						],
 						"settings":
@@ -258,7 +315,63 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "Code/Simple_Beam.input",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1415,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								298,
+								298
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 525.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "Code/Simple_Truss.input",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 963,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								635,
+								635
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 300.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
 					"type": "text"
 				}
 			]
@@ -268,20 +381,20 @@
 			"sheets":
 			[
 				{
-					"buffer": 1,
-					"file": "Code/SOLVER2D.py",
+					"buffer": 3,
+					"file": "Code/SOLVER2D_2.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 6573,
+						"buffer_size": 14318,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								6137,
-								6137
+								11530,
+								11530
 							]
 						],
 						"settings":
@@ -291,10 +404,40 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 4290.0,
+						"translation.y": 9124.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "Code/PREPROCESSOR2D.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 10519,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3727,
+								3727
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 3450.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
 					"type": "text"
 				}
 			]
@@ -328,7 +471,7 @@
 		"cols":
 		[
 			0.0,
-			0.267708333333,
+			0.396258090614,
 			1.0
 		],
 		"rows":
@@ -391,7 +534,7 @@
 	"show_minimap": true,
 	"show_open_files": false,
 	"show_tabs": true,
-	"side_bar_visible": true,
+	"side_bar_visible": false,
 	"side_bar_width": 195.0,
 	"status_bar_visible": true,
 	"template_settings":

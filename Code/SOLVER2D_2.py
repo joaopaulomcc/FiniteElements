@@ -1,12 +1,12 @@
 import numpy as np
 import math
-
+import matplotlib.pyplot as plt
 ###############################################################################
 ###############################################################################
 ###############################################################################
 
 # Classes
-# Classes created in order to store the data retrieved from the
+# Classes created in order to store the data retriEed from the
 # input file.
 
 
@@ -22,7 +22,7 @@ class material:
 
 
 class propertie:
-    # A propertie have a kind (BAR or BEAM), a material
+    # A propertie hAe a kind (BAR or BEAM), a material
     # and some parameters, for the BAR the parameters
     # are only the area, for the BEAM the parameters
     # are the area and the moment of inertia
@@ -35,7 +35,7 @@ class propertie:
 
 
 class load:
-    # A load have a name, a kind, CONCENTRATED or DISTRIBUTED,
+    # A load hAe a name, a kind, CONCENTRATED or DISTRIBUTED,
     # for the CONCENTRATED load the parameters are the node
     # where the force is applied and FX, FY and MZ, for the
     # DISTRIBUTED load the parameters are the two nodes
@@ -48,7 +48,7 @@ class load:
 
 
 class constrain:
-    # A constrain have a name, the node where it is applied
+    # A constrain hAe a name, the node where it is applied
     # and it's values in the X axis, Y axis and rotation around
     # the Z axis, if a constrain does not exist, it's value is
     # the stting "FREE".
@@ -172,7 +172,7 @@ def read_input_file(input_file):
 
 
 def BAR(element, job):
-    # This function receives the information of a BAR element and returns,
+    # This function receIes the information of a BAR element and returns,
     # it's stiffness matrix
 
     element_propertie_name = element[1]
@@ -209,8 +209,70 @@ def BAR(element, job):
 
 
 def BEAM(element, job):
-    # This function receives the information of a BEAM element and returns,
+    # This function receIes the information of a BEAM element and returns,
     # it's stiffness matrix
+    element_propertie_name = element[1]
+    element_propertie = job.properties[element_propertie_name]
+    element_material_name = element_propertie.material
+    element_material = job.materials[element_material_name]
+
+    E = element_material.young  # Element's young modulus
+    A = float(element_propertie.parameters[0])  # Element's area
+    I = float(element_propertie.parameters[1])  # Element's moment of inertia
+
+    node_0 = job.nodes[int(element[2])]
+    node_1 = job.nodes[int(element[3])]
+
+    x_0 = float(node_0[1])
+    y_0 = float(node_0[2])
+
+    x_1 = float(node_1[1])
+    y_1 = float(node_1[2])
+
+    L = math.sqrt((x_1 - x_0)**2 + (y_1 - y_0)**2)  # Element's length
+ 
+    c = (x_1 - x_0) / L  # Element's cos
+    s = (y_1 - y_0) / L  # Element's sin
+
+    # Element's stiffness matrix before rotation
+    K = np.zeros((6, 6))
+    K[0][0] = E * A / L
+    K[1][1] = 12 * E * I / (L**3)
+    K[2][2] = 4 * E * I / L
+    K[3][3] = E * A / L
+    K[4][4] = 12 * E * I / (L**3)
+    K[5][5] = 4 * E * I / L
+    K[0][3] = -E * A / L
+    K[3][0] = K[0][3]
+    K[1][2] = 6 * E * I / (L**2)
+    K[2][1] = K[1][2]
+    K[1][4] = -12 * E * I / (L**3)
+    K[4][1] = K[1][4]
+    K[1][5] = 6 * E * I / (L**2)
+    K[5][1] = K[1][5]
+    K[2][4] = -6 * E * I / (L**2)
+    K[4][2] = K[2][4]
+    K[2][5] = 2 * E * I / L
+    K[5][2] = K[2][5]
+    K[5][4] = -6 * E * I / (L**2)
+    K[4][5] = K[5][4]
+
+    # Element's rotation matrix
+    T = np.zeros((6, 6))
+    T[0][0] = c
+    T[0][1] = -s
+    T[1][0] = s
+    T[1][1] = c
+    T[2][2] = 1
+    T[3][3] = c
+    T[3][4] = -s
+    T[4][3] = s
+    T[4][4] = c
+    T[5][5] = 1
+    
+    K_Local = np.dot(np.dot(np.transpose(T), K), T)
+    
+    return(K_Local)
     pass
 
 ###############################################################################
@@ -221,8 +283,8 @@ def BEAM(element, job):
 
 # Read Input File
 
-
-input_file = open("input2d_2.inp", 'r')
+print("Reading input file ...")
+input_file = open("Cantilever_Beam.input", 'r')
 job = read_input_file(input_file)
 
 N_DOF = 3 * len(job.nodes)
@@ -232,6 +294,7 @@ F_Global = np.zeros((N_DOF, 1))
 
 active_DOFs = [False for x in range(N_DOF)]
 
+print("Creating problem matrix ...")
 for element in job.elements:
 
     if job.properties[element[1]].kind == "BAR":
@@ -258,14 +321,14 @@ for element in job.elements:
 
     if job.properties[element[1]].kind == "BEAM":
 
-        K_Local = BAR(element, job)
-        K_MAP = np.zeros(4)
+        K_Local = BEAM(element, job)
+        K_MAP = np.zeros(6)
         K_MAP[0] = int(element[2]) * 3
         K_MAP[1] = int(element[2]) * 3 + 1
         K_MAP[2] = int(element[2]) * 3 + 2
         K_MAP[3] = int(element[3]) * 3
         K_MAP[4] = int(element[3]) * 3 + 1
-        K_MAP[4] = int(element[3]) * 3 + 2
+        K_MAP[5] = int(element[3]) * 3 + 2
 
         for position in K_MAP:
 
@@ -299,13 +362,13 @@ for key, value in job.loads.items():
     elif single_load.kind == "DISTRIBUTED":
 
         node0_number = int(single_load.parameters[0])
-        node0_vector = job.nodes(node0_number)
-        node0_x = node0_vector[1]
-        node0_y = node0_vector[2]
+        node0_vector = job.nodes[node0_number]
+        node0_x = float(node0_vector[1])
+        node0_y = float(node0_vector[2])
         node1_number = int(single_load.parameters[1])
-        node1_vector = job.nodes(node1_number)
-        node1_x = node1_vector[1]
-        node1_y = node1_vector[2]
+        node1_vector = job.nodes[node1_number]
+        node1_x = float(node1_vector[1])
+        node1_y = float(node1_vector[2])
 
         L = math.sqrt((node1_x - node0_x)**2 + (node1_y - node0_y)**2)
         QX = float(single_load.parameters[2])
@@ -356,10 +419,55 @@ for i, i_g in enumerate(unknown):
     for j, j_g in enumerate(unknown):
         Matrix_A[i][j] = K_Global[i_g][j_g]
 
-
+print("Solving global system ...")
 displacements = np.linalg.solve(Matrix_A, Vector_b)
 
-print(job.title)
-print(job.analysis)
-print("Displacements")
-print(displacements)
+###############################################################################
+###############################################################################
+###############################################################################
+
+# Post Processing
+
+results_global_active = np.zeros(len(DOF))
+
+for i, i_g in enumerate(unknown):
+    results_global_active[i_g] = displacements[i]
+
+results_global = np.zeros(N_DOF)
+
+j = 0
+
+for i in range(N_DOF):
+    if active_DOFs[i] == False:
+        results_global[i] = 0
+        j -= 1
+    else:
+        results_global[i] = results_global_active[j]
+    j += 1
+
+print("Displacements and Rotations")
+print(results_global)
+
+node_numx = np.zeros(len(job.nodes))
+node_numy = np.zeros(len(job.nodes))
+
+for i, value in enumerate(job.nodes):
+    node_numx[i] = float(value[1])
+    node_numy[i] = float(value[2])
+
+scale_factor = 1
+node_res_x = np.zeros(len(node_numx))
+node_res_y = np.zeros(len(node_numx))
+node_res_rz = np.zeros(len(node_numx))
+
+for i in range(len(node_numx)):
+    node_res_x[i] = node_numx[i] + scale_factor * results_global[i * 3]
+    node_res_y[i] = node_numy[i] + scale_factor * results_global[i * 3 + 1]
+    node_res_rz[i] = results_global[i * 3 + 2]
+
+plt.scatter(node_numx, node_numy)
+
+
+plt.figure(2)
+plt.scatter(node_res_x, node_res_y)
+plt.show()

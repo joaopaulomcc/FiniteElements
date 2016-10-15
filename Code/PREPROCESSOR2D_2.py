@@ -122,41 +122,38 @@ class constrain:
 
 # Title
 
-title = "Cantilever_Beam"
+title = "EX_002"
 
 # Analysis Type
 
 analysis_type = "STATIC"
 
 # Materials
-AL7075_T6 = material("AL7075-T6", 2810, 71.7e9, 0.33)
+Aluminium = material("Aluminium", 2810, 80e9, 0.33)
 
 # Properties
-Beam_0 = propertie("Beam_0", "BEAM", AL7075_T6, [2e-4, 6.7e-9])
-# Beam_1 = propertie("Beam_1", "BEAM", AL7075_T6, [1e-4, 8e-10])
+Beam_0 = propertie("Beam_0", "BEAM", Aluminium, [0.0008, 1.06666667e-07])
+Bar_0 = propertie("Bar_0", "BAR", Aluminium, [1.9634954084936207e-05])
 
-# Bar_0 = propertie("Bar_0", "BAR", AL7075_T6, [2e4])
-# Bar_1 = propertie("Bar_1", "BAR", AL7075_T6, [1e4])
 
 # Loads
 No_load = load("No_load", "NO_LOAD", [0])
-Force_0 = load("Force_0", "CONCENTRATED", [0, 0, 0])
-Distributed_0 = load("Distributed_0", "DISTRIBUTED", [0, -100])
+Distributed_0 = load("Distributed_0", "DISTRIBUTED", [0, 10000])
 
 # Points
-Points_array = [Point(0, 0, 0, No_load),
-                Point(1, 1, 0, Force_0)]
-#                Point(2, 0, 0, No_load)]
+Points_array = [Point(0, 0, 0.5, No_load),
+                Point(1, 2, 0.5, No_load),
+                Point(2, 0, 0, No_load)]
 
 # Lines
-Lines = [Line(0, Points_array[0], Points_array[1], Beam_0, Distributed_0, 1000)]
-#         Line(0, Points_array[2], Points_array[1], Bar_1, No_load, 1)]
+Lines = [Line(0, Points_array[0], Points_array[1], Beam_0, Distributed_0, 10),
+         Line(0, Points_array[2], Points_array[1], Bar_0, No_load, 1)]
 # Lines = [Line(0, Points_array[0], Points_array[1], Bar_0, Distributed_0, 1),
 #          Line(0, Points_array[2], Points_array[1], Bar_1, Distributed_0, 1)]
 
 # Constrains
 Fixed_0 = constrain("Fixed_0", Points_array[0], 0, 0, 0)
-# Fixed_1 = constrain("Fixed_1", Points_array[2], 0, 0, "FREE")
+Fixed_1 = constrain("Fixed_1", Points_array[2], 0, 0, "FREE")
 
 ###############################################################################
 ###############################################################################
