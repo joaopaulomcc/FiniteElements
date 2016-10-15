@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+import time
 ###############################################################################
 ###############################################################################
 ###############################################################################
@@ -230,7 +231,7 @@ def BEAM(element, job):
     y_1 = float(node_1[2])
 
     L = math.sqrt((x_1 - x_0)**2 + (y_1 - y_0)**2)  # Element's length
- 
+
     c = (x_1 - x_0) / L  # Element's cos
     s = (y_1 - y_0) / L  # Element's sin
 
@@ -269,9 +270,9 @@ def BEAM(element, job):
     T[4][3] = s
     T[4][4] = c
     T[5][5] = 1
-    
+
     K_Local = np.dot(np.dot(np.transpose(T), K), T)
-    
+
     return(K_Local)
     pass
 
@@ -283,9 +284,14 @@ def BEAM(element, job):
 
 # Read Input File
 
+
+star_time = time.clock()
+
 print("Reading input file ...")
 input_file = open("Cantilever_Beam.input", 'r')
 job = read_input_file(input_file)
+input_file.close()
+print(str(round(time.clock() - star_time, 4)) + "s")
 
 N_DOF = 3 * len(job.nodes)
 K_Global = np.zeros((N_DOF, N_DOF))
@@ -294,7 +300,10 @@ F_Global = np.zeros((N_DOF, 1))
 
 active_DOFs = [False for x in range(N_DOF)]
 
+star_time = time.clock()
 print("Creating problem matrix ...")
+total_elements = len(job.elements)
+
 for element in job.elements:
 
     if job.properties[element[1]].kind == "BAR":
@@ -342,7 +351,6 @@ for element in job.elements:
 
                 # Relate nodes with Degrees of Freedon
                 K_Global[i_g][j_g] += K_Local[i][j]
-
 
 # Ceate F_Global Matriz
 for key, value in job.loads.items():
@@ -419,8 +427,14 @@ for i, i_g in enumerate(unknown):
     for j, j_g in enumerate(unknown):
         Matrix_A[i][j] = K_Global[i_g][j_g]
 
+print(str(round(time.clock() - star_time, 4)) + "s")
+
+
+star_time = time.clock()
 print("Solving global system ...")
 displacements = np.linalg.solve(Matrix_A, Vector_b)
+
+print(str(round(time.clock() - star_time, 4)) + "s")
 
 ###############################################################################
 ###############################################################################
@@ -465,9 +479,17 @@ for i in range(len(node_numx)):
     node_res_y[i] = node_numy[i] + scale_factor * results_global[i * 3 + 1]
     node_res_rz[i] = results_global[i * 3 + 2]
 
-plt.scatter(node_numx, node_numy)
+###############################################################################
+###############################################################################
+###############################################################################
 
+# Ploting
 
-plt.figure(2)
-plt.scatter(node_res_x, node_res_y)
+fig = plt.figure()
+ax1 = fig.add_subplot(111)
+ax1.scatter(node_numx, node_numy, c='k', label="Original")
+ax1.scatter(node_res_x, node_res_y, c='r', label="Deformed")
+plt.axis('equal')
+plt.title(job.title)
+plt.legend()
 plt.show()
