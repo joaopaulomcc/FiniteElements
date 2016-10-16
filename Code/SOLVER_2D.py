@@ -2,53 +2,54 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 import time
+
 ###############################################################################
 ###############################################################################
 ###############################################################################
 
 # Classes
-# Classes created in order to store the data retriEed from the
+# Classes created in order to store the data retrieved from the
 # input file.
 
 
-class material:
+class Material:
     # stores the material name and physical properties
     # density, young's modulus and poisson's ratio
 
-    def __init__(self, name, density, young, poisson, *args):
+    def __init__(self, name, density, young, poisson):
         self.name = name
         self.density = density
         self.young = young
         self.poisson = poisson
 
 
-class propertie:
-    # A propertie hAe a kind (BAR or BEAM), a material
+class Property:
+    # A property hAe a kind (BAR or BEAM), a material
     # and some parameters, for the BAR the parameters
     # are only the area, for the BEAM the parameters
     # are the area and the moment of inertia
 
-    def __init__(self, name, kind, material, parameters, *args):
+    def __init__(self, name, kind, material, parameters):
         self.name = name
         self.kind = kind
         self.material = material
         self.parameters = parameters
 
 
-class load:
-    # A load hAe a name, a kind, CONCENTRATED or DISTRIBUTED,
+class Load:
+    # A load have a name, a kind, CONCENTRATED or DISTRIBUTED,
     # for the CONCENTRATED load the parameters are the node
     # where the force is applied and FX, FY and MZ, for the
     # DISTRIBUTED load the parameters are the two nodes
-    # between wich the load is applied and QX and QY.
+    # between witch the load is applied and QX and QY.
 
-    def __init__(self, name, kind, parameters, *args):
+    def __init__(self, name, kind, parameters):
         self.name = name
         self.kind = kind
         self.parameters = parameters
 
 
-class constrain:
+class Constrain:
     # A constrain hAe a name, the node where it is applied
     # and it's values in the X axis, Y axis and rotation around
     # the Z axis, if a constrain does not exist, it's value is
@@ -62,7 +63,7 @@ class constrain:
         self.RZ = RZ
 
 
-class job_data:
+class JobData:
     # job_data is te object that contains all the information
     # necessary to make the analysis
 
@@ -86,8 +87,8 @@ class job_data:
 
 def read_input_file(input_file):
     # This function reads an .txt file and returns a job_data object, this
-    # object contains all the information necessary in order to performe
-    # the analisys
+    # object contains all the information necessary in order to perform
+    # the analysis
 
     # materials, properties, loads, and constrains are stored in dictonaries,
     # the key is the name of the material, propertie, etc. Elements and nodes
@@ -139,24 +140,24 @@ def read_input_file(input_file):
                 analysis = line.strip()
 
             elif flag == "materials":
-                materials[line_s[0]] = material(line_s[0],
+                materials[line_s[0]] = Material(line_s[0],
                                                 float(line_s[1]),
                                                 float(line_s[2]),
                                                 float(line_s[3]))
 
             elif flag == "properties":
-                properties[line_s[0]] = propertie(line_s[0],
-                                                  line_s[1],
-                                                  line_s[2],
+                properties[line_s[0]] = Property(line_s[0],
+                                                 line_s[1],
+                                                 line_s[2],
                                                   line_s[3:])
 
             elif flag == "loads":
-                loads[line_s[0]] = load(line_s[0],
+                loads[line_s[0]] = Load(line_s[0],
                                         line_s[1],
                                         line_s[2:])
 
             elif flag == "constrains":
-                constrains[line_s[0]] = constrain(line_s[0],
+                constrains[line_s[0]] = Constrain(line_s[0],
                                                   int(line_s[1]),
                                                   line_s[2],
                                                   line_s[3],
@@ -168,8 +169,8 @@ def read_input_file(input_file):
             elif flag == "nodes":
                 nodes.append(line_s)
 
-    return job_data(title, analysis, materials,
-                    properties, loads, constrains, elements, nodes)
+    return JobData(title, analysis, materials,
+                   properties, loads, constrains, elements, nodes)
 
 
 def BAR(element, job):
@@ -284,14 +285,24 @@ def BEAM(element, job):
 
 # Read Input File
 
+print("#####################################")
+print("##         SOLVER - 2D             ##")
+print("#####################################")
 
+while True:
+    try:
+        input_file_name = input("Enter the input file name: ")
+        input_file = open(input_file_name, 'r')
+        break
+    except OSError:
+        print("ERROR: The file was not found\n")
+
+print("\nReading input file ...")
 star_time = time.clock()
-
-print("Reading input file ...")
-input_file = open("Cantilever_Beam.input", 'r')
+input_file = open(input_file_name, 'r')
 job = read_input_file(input_file)
 input_file.close()
-print(str(round(time.clock() - star_time, 4)) + "s")
+print("Time used: " + str(round(time.clock() - star_time, 4)) + "s\n")
 
 N_DOF = 3 * len(job.nodes)
 K_Global = np.zeros((N_DOF, N_DOF))
@@ -325,7 +336,7 @@ for element in job.elements:
                 i_g = int(K_MAP[i])
                 j_g = int(K_MAP[j])
 
-                # Relate nodes with Degrees of Freedon
+                # Relate nodes with Degrees of Freedom
                 K_Global[i_g][j_g] += K_Local[i][j]
 
     if job.properties[element[1]].kind == "BEAM":
@@ -349,10 +360,10 @@ for element in job.elements:
                 i_g = int(K_MAP[i])
                 j_g = int(K_MAP[j])
 
-                # Relate nodes with Degrees of Freedon
+                # Relate nodes with Degrees of Freedom
                 K_Global[i_g][j_g] += K_Local[i][j]
 
-# Ceate F_Global Matriz
+# Create F_Global Matrix
 for key, value in job.loads.items():
 
     single_load = value
@@ -427,14 +438,14 @@ for i, i_g in enumerate(unknown):
     for j, j_g in enumerate(unknown):
         Matrix_A[i][j] = K_Global[i_g][j_g]
 
-print(str(round(time.clock() - star_time, 4)) + "s")
+print("Time used: " + str(round(time.clock() - star_time, 4)) + "s\n")
 
 
 star_time = time.clock()
 print("Solving global system ...")
 displacements = np.linalg.solve(Matrix_A, Vector_b)
 
-print(str(round(time.clock() - star_time, 4)) + "s")
+print("Time used: " + str(round(time.clock() - star_time, 4)) + "s\n")
 
 ###############################################################################
 ###############################################################################
@@ -460,7 +471,9 @@ for i in range(N_DOF):
     j += 1
 
 print("Displacements and Rotations")
-print(results_global)
+print("#       Delta_X         Delta_Y         Delta_RZ")
+for i in range(0, len(results_global), 3):
+    print('{0:4d}    {1:4e}    {2:4e}    {3:4e}'.format(i // 3, results_global[i], results_global[i + 1], results_global[i + 2]))
 
 node_numx = np.zeros(len(job.nodes))
 node_numy = np.zeros(len(job.nodes))
@@ -469,27 +482,36 @@ for i, value in enumerate(job.nodes):
     node_numx[i] = float(value[1])
     node_numy[i] = float(value[2])
 
-scale_factor = 1
-node_res_x = np.zeros(len(node_numx))
-node_res_y = np.zeros(len(node_numx))
-node_res_rz = np.zeros(len(node_numx))
-
-for i in range(len(node_numx)):
-    node_res_x[i] = node_numx[i] + scale_factor * results_global[i * 3]
-    node_res_y[i] = node_numy[i] + scale_factor * results_global[i * 3 + 1]
-    node_res_rz[i] = results_global[i * 3 + 2]
-
 ###############################################################################
 ###############################################################################
 ###############################################################################
 
-# Ploting
+# Plot
 
-fig = plt.figure()
-ax1 = fig.add_subplot(111)
-ax1.scatter(node_numx, node_numy, c='k', label="Original")
-ax1.scatter(node_res_x, node_res_y, c='r', label="Deformed")
-plt.axis('equal')
-plt.title(job.title)
-plt.legend()
-plt.show()
+while True:
+    scale_factor = int(input("\nEnter the Scale Factor for the displacements (0 to close the program): "))
+
+    if scale_factor == 0:
+        break
+
+    node_res_x = np.zeros(len(node_numx))
+    node_res_y = np.zeros(len(node_numx))
+    node_res_rz = np.zeros(len(node_numx))
+
+    for i in range(len(node_numx)):
+        node_res_x[i] = node_numx[i] + scale_factor * results_global[i * 3]
+        node_res_y[i] = node_numy[i] + scale_factor * results_global[i * 3 + 1]
+        node_res_rz[i] = results_global[i * 3 + 2]
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(111)
+    ax1.scatter(node_numx, node_numy, c='k', label="Original")
+    ax1.scatter(node_res_x, node_res_y, c='r', label="Deformed")
+    plt.axis('equal')
+    plt.title(job.title)
+    plt.legend()
+    plt.show()
+
+
+
+

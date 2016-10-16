@@ -149,7 +149,7 @@ Points_array = [Point(0, 0, 0, No_load),
 #                Point(2, 0, 0, No_load)]
 
 # Lines
-Lines = [Line(0, Points_array[0], Points_array[1], Beam_0, Distributed_0, 100)]
+Lines = [Line(0, Points_array[0], Points_array[1], Beam_0, Distributed_0, 5000)]
 #         Line(0, Points_array[2], Points_array[1], Bar_1, No_load, 1)]
 # Lines = [Line(0, Points_array[0], Points_array[1], Bar_0, Distributed_0, 1),
 #          Line(0, Points_array[2], Points_array[1], Bar_1, Distributed_0, 1)]
