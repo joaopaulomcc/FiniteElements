@@ -505,11 +505,21 @@ while True:
 
     fig = plt.figure()
     ax1 = fig.add_subplot(111)
-    ax1.scatter(node_numx, node_numy, c='k', label="Original")
-    ax1.scatter(node_res_x, node_res_y, c='r', label="Deformed")
+
+    for element in job.elements:
+        x = [node_numx[int(element[2])], node_numx[int(element[3])]]
+        y = [node_numy[int(element[2])], node_numy[int(element[3])]]
+        x_def = [node_res_x[int(element[2])], node_res_x[int(element[3])]]
+        y_def = [node_res_y[int(element[2])], node_res_y[int(element[3])]]
+        print(x)
+        print(y)
+        print(x_def)
+        print(y_def)
+        ax1.plot(x, y, 'ko-')
+        ax1.plot(x_def, y_def, 'bs-')
+
     plt.axis('equal')
     plt.title(job.title)
-    plt.legend()
     plt.show()
 
 
