@@ -1,0 +1,43 @@
+#TITLE
+Kwon_e_Bang_8.9.1
+#
+#ANALYSIS
+STATIC
+#
+#MATERIALS
+Mat_0    1    10000000    0.33
+#
+#PROPERTIES
+Beam_0    BEAM4    Mat_0    1    0.08333333333333333
+#
+#LOADS
+Load_o_0    CONCENTRATED    1    0    -100    0
+#
+#CONSTRAINS
+Fixed_0    0    0    0    FREE
+Fixed_1    2    0    0    FREE
+#
+#ELEMENTS
+0    Beam_0    0    3
+1    Beam_0    3    4
+2    Beam_0    4    5
+3    Beam_0    5    6
+4    Beam_0    6    1
+5    Beam_0    1    7
+6    Beam_0    7    8
+7    Beam_0    8    9
+8    Beam_0    9    10
+9    Beam_0    10    2
+#
+#NODES
+0    0.0    0.0    0.0
+1    10.0    0.0    0.0
+2    20.0    0.0    0.0
+3    2.0    0.0    0.0
+4    4.0    0.0    0.0
+5    6.0    0.0    0.0
+6    8.0    0.0    0.0
+7    12.0    0.0    0.0
+8    14.0    0.0    0.0
+9    16.0    0.0    0.0
+10    18.0    0.0    0.0

@@ -40,8 +40,8 @@ class Line:
         y_1 = self.point_1.y
         n = self.n
 
-        inclination = (y_1 - y_0) / (x_1 - x_0)
         delta_x = (x_1 - x_0) / n
+        delta_y = (y_1 - y_0) / n
 
         local_nodes = np.zeros((n + 1, 2))
         local_nodes[0][0] = x_0
@@ -49,7 +49,7 @@ class Line:
 
         for i in range(1, n + 1):
             local_nodes[i][0] = local_nodes[i - 1][0] + delta_x
-            local_nodes[i][1] = local_nodes[i - 1][1] + delta_x * inclination
+            local_nodes[i][1] = local_nodes[i - 1][1] + delta_y
 
         return local_nodes
 
@@ -122,38 +122,35 @@ class constrain:
 
 # Title
 
-title = "EX_002"
+title = "Kwon_e_Bang_8.9.5"
 
 # Analysis Type
 
 analysis_type = "STATIC"
 
 # Materials
-Aluminium = material("Aluminium", 2810, 80e9, 0.33)
+Mat_0 = material("Mat_0", 1, 30e6, 0.33)
 
 # Properties
-Beam_0 = propertie("Beam_0", "BEAM4", Aluminium, [0.0008, 1.06666667e-07])
-Bar_0 = propertie("Bar_0", "BAR", Aluminium, [1.9634954084936207e-05])
-
+Beam_0 = propertie("Beam_0", "BEAM6", Mat_0, [2, 0.6667])
 
 # Loads
 No_load = load("No_load", "NO_LOAD", [0])
-Distributed_0 = load("Distributed_0", "DISTRIBUTED", [0, 10000])
+Load_0 = load("Load_o", "CONCENTRATED", [0, -60, 0])
 
 # Points
-Points_array = [Point(0, 0, 0.5, No_load),
-                Point(1, 2, 0.5, No_load),
-                Point(2, 0, 0, No_load)]
+Points_array = [Point(0, 0, 0, No_load),
+                Point(1, 0, 60, No_load),
+                Point(2, 20, 60, Load_0)]
 
 # Lines
-Lines = [Line(0, Points_array[0], Points_array[1], Beam_0, Distributed_0, 1),
-         Line(0, Points_array[2], Points_array[1], Bar_0, No_load, 1)]
-# Lines = [Line(0, Points_array[0], Points_array[1], Bar_0, Distributed_0, 1),
-#          Line(0, Points_array[2], Points_array[1], Bar_1, Distributed_0, 1)]
+Lines = [Line(0, Points_array[0], Points_array[1], Beam_0, No_load, 4),
+         Line(0, Points_array[1], Points_array[2], Beam_0, No_load, 2)]
 
 # Constrains
 Fixed_0 = constrain("Fixed_0", Points_array[0], 0, 0, 0)
-Fixed_1 = constrain("Fixed_1", Points_array[2], 0, 0, "FREE")
+
+
 
 ###############################################################################
 ###############################################################################

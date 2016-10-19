@@ -2,51 +2,24 @@
 Cantilever_Beam
 #
 #ANALYSIS
-STATIC
+MODAL
 #
 #MATERIALS
 AL7075-T6    2810    71700000000.0    0.33
 #
 #PROPERTIES
-Beam_0    BEAM    AL7075-T6    0.0002    6.7e-09
+Beam_0    BEAM4    AL7075-T6    0.0002    6.7e-09
 #
 #LOADS
 Force_0_0    CONCENTRATED    1    0    0    0
-Distributed_0_0    DISTRIBUTED    0    2    0    -100
-Distributed_0_1    DISTRIBUTED    2    3    0    -100
-Distributed_0_2    DISTRIBUTED    3    4    0    -100
-Distributed_0_3    DISTRIBUTED    4    5    0    -100
-Distributed_0_4    DISTRIBUTED    5    6    0    -100
-Distributed_0_5    DISTRIBUTED    6    7    0    -100
-Distributed_0_6    DISTRIBUTED    7    8    0    -100
-Distributed_0_7    DISTRIBUTED    8    9    0    -100
-Distributed_0_8    DISTRIBUTED    9    10    0    -100
-Distributed_0_9    DISTRIBUTED    10    1    0    -100
+Distributed_0_0    DISTRIBUTED    0    1    0    -100
 #
 #CONSTRAINS
 Fixed_0    0    0    0    0
 #
 #ELEMENTS
-0    Beam_0    0    2
-1    Beam_0    2    3
-2    Beam_0    3    4
-3    Beam_0    4    5
-4    Beam_0    5    6
-5    Beam_0    6    7
-6    Beam_0    7    8
-7    Beam_0    8    9
-8    Beam_0    9    10
-9    Beam_0    10    1
+0    Beam_0    0    1
 #
 #NODES
 0    0.0    0.0    0.0
 1    1.0    0.0    0.0
-2    0.1    0.0    0.0
-3    0.2    0.0    0.0
-4    0.3    0.0    0.0
-5    0.4    0.0    0.0
-6    0.5    0.0    0.0
-7    0.6    0.0    0.0
-8    0.7    0.0    0.0
-9    0.8    0.0    0.0
-10    0.9    0.0    0.0

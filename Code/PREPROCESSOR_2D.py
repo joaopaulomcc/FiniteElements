@@ -40,8 +40,8 @@ class Line:
         y_1 = self.point_1.y
         n = self.n
 
-        inclination = (y_1 - y_0) / (x_1 - x_0)
         delta_x = (x_1 - x_0) / n
+        delta_y = (y_1 - y_0) / n
 
         local_nodes = np.zeros((n + 1, 2))
         local_nodes[0][0] = x_0
@@ -49,7 +49,7 @@ class Line:
 
         for i in range(1, n + 1):
             local_nodes[i][0] = local_nodes[i - 1][0] + delta_x
-            local_nodes[i][1] = local_nodes[i - 1][1] + delta_x * inclination
+            local_nodes[i][1] = local_nodes[i - 1][1] + delta_y
 
         return local_nodes
 

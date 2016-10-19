@@ -132,7 +132,7 @@ analysis_type = "STATIC"
 AL7075_T6 = material("AL7075-T6", 2810, 71.7e9, 0.33)
 
 # Properties
-Beam_0 = propertie("Beam_0", "BEAM", AL7075_T6, [2e-4, 6.7e-9])
+Beam_0 = propertie("Beam_0", "BEAM4", AL7075_T6, [2e-4, 6.7e-9])
 # Beam_1 = propertie("Beam_1", "BEAM", AL7075_T6, [1e-4, 8e-10])
 
 # Bar_0 = propertie("Bar_0", "BAR", AL7075_T6, [2e4])
@@ -149,7 +149,7 @@ Points_array = [Point(0, 0, 0, No_load),
 #                Point(2, 0, 0, No_load)]
 
 # Lines
-Lines = [Line(0, Points_array[0], Points_array[1], Beam_0, Distributed_0, 10)]
+Lines = [Line(0, Points_array[0], Points_array[1], Beam_0, Distributed_0, 1)]
 #         Line(0, Points_array[2], Points_array[1], Bar_1, No_load, 1)]
 # Lines = [Line(0, Points_array[0], Points_array[1], Bar_0, Distributed_0, 1),
 #          Line(0, Points_array[2], Points_array[1], Bar_1, Distributed_0, 1)]

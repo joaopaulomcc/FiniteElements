@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import linalg
 import math
 import matplotlib.pyplot as plt
 import time
@@ -106,7 +107,7 @@ def read_input_file(input_file):
         # This loop will through the whole input file, line by line. When
         # a line starts with a "#" it means that there's no information
         # to be stored in that line. #TITLE, #ANALYSIS, and so on signals
-        # what information is sotered in the next lines
+        # what information is stored in the next lines
         # With the exception of material, all information is stored as strings.
 
         line_s = line.split()
@@ -149,7 +150,7 @@ def read_input_file(input_file):
                 properties[line_s[0]] = Property(line_s[0],
                                                  line_s[1],
                                                  line_s[2],
-                                                  line_s[3:])
+                                                 line_s[3:])
 
             elif flag == "loads":
                 loads[line_s[0]] = Load(line_s[0],
@@ -173,7 +174,7 @@ def read_input_file(input_file):
                    properties, loads, constrains, elements, nodes)
 
 
-def BAR(element, job):
+def K_bar(element, job):
     # This function receIes the information of a BAR element and returns,
     # it's stiffness matrix
 
@@ -210,8 +211,8 @@ def BAR(element, job):
     return(K_Local)
 
 
-def BEAM(element, job):
-    # This function receIes the information of a BEAM element and returns,
+def K_beam6(element, job):
+    # This function receives the information of a BEAM6 element and returns,
     # it's stiffness matrix
     element_propertie_name = element[1]
     element_propertie = job.properties[element_propertie_name]
@@ -275,7 +276,132 @@ def BEAM(element, job):
     K_Local = np.dot(np.dot(np.transpose(T), K), T)
 
     return(K_Local)
-    pass
+
+def K_beam4(element, job):
+    # This function receives the information of a BEAM4 element and returns,
+    # it's stiffness matrix
+    element_propertie_name = element[1]
+    element_propertie = job.properties[element_propertie_name]
+    element_material_name = element_propertie.material
+    element_material = job.materials[element_material_name]
+
+    E = element_material.young  # Element's young modulus
+    A = float(element_propertie.parameters[0])  # Element's area
+    I = float(element_propertie.parameters[1])  # Element's moment of inertia
+
+    node_0 = job.nodes[int(element[2])]
+    node_1 = job.nodes[int(element[3])]
+
+    x_0 = float(node_0[1])
+    y_0 = float(node_0[2])
+
+    x_1 = float(node_1[1])
+    y_1 = float(node_1[2])
+
+    L = math.sqrt((x_1 - x_0)**2 + (y_1 - y_0)**2)  # Element's length
+
+    c = (x_1 - x_0) / L  # Element's cos
+    s = (y_1 - y_0) / L  # Element's sin
+
+    # Element's stiffness matrix before rotation
+    K = np.zeros((4, 4))
+    K[0][0] = 12
+    K[0][1] = 6 * L
+    K[0][2] = -12
+    K[0][3] = 6 * L
+    K[1][0] = 6 * L
+    K[1][1] = 4 * L**2
+    K[1][2] = -6 * L
+    K[1][3] = 2 * L**2
+    K[2][0] = -12
+    K[2][1] = -6 * L
+    K[2][2] = 12
+    K[2][3] = -6 * L
+    K[3][0] = 6 * L
+    K[3][1] = 2 * L**2
+    K[3][2] = -6 * L
+    K[3][3] = 4 * L**2
+
+    K = ((E * I)/(L**3)) * K
+
+    # Element's rotation matrix
+    T = np.zeros((4, 4))
+    T[0][0] = c
+    T[0][1] = -s
+    T[1][0] = s
+    T[1][1] = c
+    T[2][2] = c
+    T[2][3] = -s
+    T[3][2] = s
+    T[3][3] = c
+
+    K_Local = np.dot(np.dot(np.transpose(T), K), T)
+
+    return(K_Local)
+
+def M_beam4(element, job):
+    # This function receives the information of a BEAM4 element and returns,
+    # it's mass matrix
+    element_propertie_name = element[1]
+    element_propertie = job.properties[element_propertie_name]
+    element_material_name = element_propertie.material
+    element_material = job.materials[element_material_name]
+
+    # E = element_material.young  # Element's young modulus
+    rho = element_material.density  # Element's density
+    A = float(element_propertie.parameters[0])  # Element's area
+    # I = float(element_propertie.parameters[1])  # Element's moment of inertia
+
+    node_0 = job.nodes[int(element[2])]
+    node_1 = job.nodes[int(element[3])]
+
+    x_0 = float(node_0[1])
+    y_0 = float(node_0[2])
+
+    x_1 = float(node_1[1])
+    y_1 = float(node_1[2])
+
+    L = math.sqrt((x_1 - x_0) ** 2 + (y_1 - y_0) ** 2)  # Element's length
+
+    c = (x_1 - x_0) / L  # Element's cos
+    s = (y_1 - y_0) / L  # Element's sin
+
+    # Element's stiffness matrix before rotation
+    M = np.zeros((4, 4))
+    M[0][0] = 156
+    M[0][1] = 22 * L
+    M[0][2] = 54
+    M[0][3] = -13 * L
+    M[1][0] = 22 * L
+    M[1][1] = 4 * L ** 2
+    M[1][2] = 13 * L
+    M[1][3] = -3 * L**2
+    M[2][0] = 54
+    M[2][1] = 13 * L
+    M[2][2] = 156
+    M[2][3] = -22 * L
+    M[3][0] = -13 * L
+    M[3][1] = -3 * L ** 2
+    M[3][2] = -22 * L
+    M[3][3] = 4 * L ** 2
+
+    M = (rho * A * L / 420) * M
+
+    # Element's rotation matrix
+    T = np.zeros((4, 4))
+    T[0][0] = c
+    T[0][1] = -s
+    T[1][0] = s
+    T[1][1] = c
+    T[2][2] = c
+    T[2][3] = -s
+    T[3][2] = s
+    T[3][3] = c
+
+    m_matrix = np.dot(np.dot(np.transpose(T), M), T)
+
+    return m_matrix
+
 
 ###############################################################################
 ###############################################################################
@@ -309,6 +435,9 @@ K_Global = np.zeros((N_DOF, N_DOF))
 DOF_Global = np.zeros((N_DOF, 1))
 F_Global = np.zeros((N_DOF, 1))
 
+if job.analysis == "MODAL":
+    M_Global = np.zeros((N_DOF, N_DOF))
+
 active_DOFs = [False for x in range(N_DOF)]
 
 star_time = time.clock()
@@ -319,7 +448,7 @@ for element in job.elements:
 
     if job.properties[element[1]].kind == "BAR":
 
-        K_Local = BAR(element, job)
+        K_Local = K_bar(element, job)
         K_MAP = np.zeros(4)
         K_MAP[0] = int(element[2]) * 3
         K_MAP[1] = int(element[2]) * 3 + 1
@@ -339,9 +468,29 @@ for element in job.elements:
                 # Relate nodes with Degrees of Freedom
                 K_Global[i_g][j_g] += K_Local[i][j]
 
-    if job.properties[element[1]].kind == "BEAM":
+    elif job.properties[element[1]].kind == "BEAM4":
 
-        K_Local = BEAM(element, job)
+        K_Local = K_beam4(element, job)
+        K_MAP = np.zeros(4)
+        K_MAP[0] = int(element[2]) * 3 + 1
+        K_MAP[1] = int(element[2]) * 3 + 2
+        K_MAP[2] = int(element[3]) * 3 + 1
+        K_MAP[3] = int(element[3]) * 3 + 2
+
+        for position in K_MAP:
+            active_DOFs[int(position)] = True
+
+        for i in range(len(K_Local)):
+            for j in range(len(K_Local)):
+                i_g = int(K_MAP[i])
+                j_g = int(K_MAP[j])
+
+                # Relate nodes with Degrees of Freedom
+                K_Global[i_g][j_g] += K_Local[i][j]
+
+    elif job.properties[element[1]].kind == "BEAM6":
+
+        K_Local = K_beam6(element, job)
         K_MAP = np.zeros(6)
         K_MAP[0] = int(element[2]) * 3
         K_MAP[1] = int(element[2]) * 3 + 1
@@ -362,6 +511,29 @@ for element in job.elements:
 
                 # Relate nodes with Degrees of Freedom
                 K_Global[i_g][j_g] += K_Local[i][j]
+
+    if job.analysis == "MODAL":
+
+        if job.properties[element[1]].kind == "BEAM4":
+
+            M_Local = M_beam4(element, job)
+            M_MAP = np.zeros(4)
+            M_MAP[0] = int(element[2]) * 3 + 1
+            M_MAP[1] = int(element[2]) * 3 + 2
+            M_MAP[2] = int(element[3]) * 3 + 1
+            M_MAP[3] = int(element[3]) * 3 + 2
+
+            for position in M_MAP:
+                active_DOFs[int(position)] = True
+
+            for i in range(len(M_Local)):
+                for j in range(len(M_Local)):
+                    i_g = int(M_MAP[i])
+                    j_g = int(M_MAP[j])
+
+                    # Relate nodes with Degrees of Freedom
+                    M_Global[i_g][j_g] += M_Local[i][j]
+
 
 # Create F_Global Matrix
 for key, value in job.loads.items():
@@ -411,6 +583,11 @@ for i, value in enumerate(active_DOFs):
 
 K_Global = np.delete(K_Global, inactive_DOFs, 0)
 K_Global = np.delete(K_Global, inactive_DOFs, 1)
+
+if job.analysis == "MODAL":
+    M_Global = np.delete(M_Global, inactive_DOFs, 0)
+    M_Global = np.delete(M_Global, inactive_DOFs, 1)
+
 F_Global = np.delete(F_Global, inactive_DOFs, 0)
 
 DOF = ["FREE" for x in range(N_DOF)]
@@ -430,20 +607,38 @@ for i, D_DOF in enumerate(DOF):
     if D_DOF == 'FREE':
         unknown.append(i)
 
-Matrix_A = np.zeros((len(unknown), len(unknown)))
-Vector_b = np.zeros((len(unknown), 1))
+stiff_matrix = np.zeros((len(unknown), len(unknown)))
+force_vector = np.zeros((len(unknown), 1))
+
+if job.analysis == "MODAL":
+    mass_matrix = np.zeros((len(unknown), len(unknown)))
 
 for i, i_g in enumerate(unknown):
-    Vector_b[i][0] = F_Global[i_g][0]
+    force_vector[i][0] = F_Global[i_g][0]
     for j, j_g in enumerate(unknown):
-        Matrix_A[i][j] = K_Global[i_g][j_g]
+        stiff_matrix[i][j] = K_Global[i_g][j_g]
+
+        if job.analysis == "MODAL":
+            mass_matrix[i][j] = M_Global[i_g][j_g]
 
 print("Time used: " + str(round(time.clock() - star_time, 4)) + "s\n")
 
-
 star_time = time.clock()
 print("Solving global system ...")
-displacements = np.linalg.solve(Matrix_A, Vector_b)
+if job.analysis == "STATIC":
+    displacements = linalg.solve(stiff_matrix, force_vector)
+elif job.analysis == "MODAL":
+    # displacements = linalg.solve(stiff_matrix, force_vector)
+    [w, vr] = linalg.eig(stiff_matrix, mass_matrix)
+
+    print("DEBUG - w")
+    print(w)
+    #print("DEBUG - vr")
+    #print(vr)
+
+    mode_num = int(input("Enter Mode: "))
+    displacements = vr[mode_num]
+    print(displacements)
 
 print("Time used: " + str(round(time.clock() - star_time, 4)) + "s\n")
 
@@ -511,10 +706,6 @@ while True:
         y = [node_numy[int(element[2])], node_numy[int(element[3])]]
         x_def = [node_res_x[int(element[2])], node_res_x[int(element[3])]]
         y_def = [node_res_y[int(element[2])], node_res_y[int(element[3])]]
-        print(x)
-        print(y)
-        print(x_def)
-        print(y_def)
         ax1.plot(x, y, 'ko-')
         ax1.plot(x_def, y_def, 'bs-')
 

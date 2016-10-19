@@ -122,38 +122,42 @@ class constrain:
 
 # Title
 
-title = "EX_002"
+title = "Meirovitch_BEAM"
 
 # Analysis Type
 
-analysis_type = "STATIC"
+analysis_type = "MODAL"
 
 # Materials
-Aluminium = material("Aluminium", 2810, 80e9, 0.33)
+AL7075_T6 = material("AL7075-T6", 2810, 71.7e9, 0.33)
 
 # Properties
-Beam_0 = propertie("Beam_0", "BEAM4", Aluminium, [0.0008, 1.06666667e-07])
-Bar_0 = propertie("Bar_0", "BAR", Aluminium, [1.9634954084936207e-05])
-
+Beam_0 = propertie("Beam_0", "BEAM4", AL7075_T6, [2e-4, 6.7e-9])
+Beam_1 = propertie("Beam_1", "BEAM4", AL7075_T6, [2e-4, 6.7e-9])
+Beam_2 = propertie("Beam_2", "BEAM4", AL7075_T6, [2e-4, 6.7e-9])
 
 # Loads
 No_load = load("No_load", "NO_LOAD", [0])
-Distributed_0 = load("Distributed_0", "DISTRIBUTED", [0, 10000])
 
 # Points
-Points_array = [Point(0, 0, 0.5, No_load),
-                Point(1, 2, 0.5, No_load),
-                Point(2, 0, 0, No_load)]
+Points_array = [Point(0, 0, 0, No_load),
+                Point(1, 0.2, 0, No_load),
+                Point(2, 0.4, 0, No_load),
+                Point(3, 0.6, 0, No_load),
+                Point(4, 0.8, 0, No_load),
+                Point(5, 1.0, 0, No_load)]
 
 # Lines
-Lines = [Line(0, Points_array[0], Points_array[1], Beam_0, Distributed_0, 1),
-         Line(0, Points_array[2], Points_array[1], Bar_0, No_load, 1)]
-# Lines = [Line(0, Points_array[0], Points_array[1], Bar_0, Distributed_0, 1),
-#          Line(0, Points_array[2], Points_array[1], Bar_1, Distributed_0, 1)]
+Lines = [Line(0, Points_array[0], Points_array[1], Beam_0, No_load, 1),
+         Line(0, Points_array[1], Points_array[2], Beam_1, No_load, 1),
+         Line(0, Points_array[2], Points_array[3], Beam_2, No_load, 1),
+         Line(0, Points_array[3], Points_array[4], Beam_1, No_load, 1),
+         Line(0, Points_array[4], Points_array[5], Beam_0, No_load, 1)]
 
 # Constrains
 Fixed_0 = constrain("Fixed_0", Points_array[0], 0, 0, 0)
-Fixed_1 = constrain("Fixed_1", Points_array[2], 0, 0, "FREE")
+Fixed_1 = constrain("Fixed_1", Points_array[5], 0, 0, 0)
+
 
 ###############################################################################
 ###############################################################################

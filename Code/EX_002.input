@@ -8,48 +8,21 @@ STATIC
 Aluminium    2810    80000000000.0    0.33
 #
 #PROPERTIES
-Beam_0    BEAM    Aluminium    0.0008    1.06666667e-07
+Beam_0    BEAM4    Aluminium    0.0008    1.06666667e-07
 Bar_0    BAR    Aluminium    1.9634954084936207e-05
 #
 #LOADS
-Distributed_0_0    DISTRIBUTED    0    3    0    10000
-Distributed_0_1    DISTRIBUTED    3    4    0    10000
-Distributed_0_2    DISTRIBUTED    4    5    0    10000
-Distributed_0_3    DISTRIBUTED    5    6    0    10000
-Distributed_0_4    DISTRIBUTED    6    7    0    10000
-Distributed_0_5    DISTRIBUTED    7    8    0    10000
-Distributed_0_6    DISTRIBUTED    8    9    0    10000
-Distributed_0_7    DISTRIBUTED    9    10    0    10000
-Distributed_0_8    DISTRIBUTED    10    11    0    10000
-Distributed_0_9    DISTRIBUTED    11    1    0    10000
+Distributed_0_0    DISTRIBUTED    0    1    0    10000
 #
 #CONSTRAINS
 Fixed_0    0    0    0    0
 Fixed_1    2    0    0    FREE
 #
 #ELEMENTS
-0    Beam_0    0    3
-1    Beam_0    3    4
-2    Beam_0    4    5
-3    Beam_0    5    6
-4    Beam_0    6    7
-5    Beam_0    7    8
-6    Beam_0    8    9
-7    Beam_0    9    10
-8    Beam_0    10    11
-9    Beam_0    11    1
-10    Bar_0    2    1
+0    Beam_0    0    1
+0    Bar_0    2    1
 #
 #NODES
 0    0.0    0.5    0.0
 1    2.0    0.5    0.0
 2    0.0    0.0    0.0
-3    0.2    0.5    0.0
-4    0.4    0.5    0.0
-5    0.6    0.5    0.0
-6    0.8    0.5    0.0
-7    1.0    0.5    0.0
-8    1.2    0.5    0.0
-9    1.4    0.5    0.0
-10    1.6    0.5    0.0
-11    1.8    0.5    0.0

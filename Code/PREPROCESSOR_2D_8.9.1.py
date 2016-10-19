@@ -122,38 +122,35 @@ class constrain:
 
 # Title
 
-title = "EX_002"
+title = "Kwon_e_Bang_8.9.1"
 
 # Analysis Type
 
 analysis_type = "STATIC"
 
 # Materials
-Aluminium = material("Aluminium", 2810, 80e9, 0.33)
+Mat_0 = material("Mat_0", 1, 10**7, 0.33)
 
 # Properties
-Beam_0 = propertie("Beam_0", "BEAM4", Aluminium, [0.0008, 1.06666667e-07])
-Bar_0 = propertie("Bar_0", "BAR", Aluminium, [1.9634954084936207e-05])
-
+Beam_0 = propertie("Beam_0", "BEAM4", Mat_0, [1, 1/12])
 
 # Loads
 No_load = load("No_load", "NO_LOAD", [0])
-Distributed_0 = load("Distributed_0", "DISTRIBUTED", [0, 10000])
+Load_0 = load("Load_o", "CONCENTRATED", [0, -100, 0])
 
 # Points
-Points_array = [Point(0, 0, 0.5, No_load),
-                Point(1, 2, 0.5, No_load),
-                Point(2, 0, 0, No_load)]
+Points_array = [Point(0, 0, 0, No_load),
+                Point(1, 10, 0, Load_0),
+                Point(2, 20, 0, No_load)]
 
 # Lines
-Lines = [Line(0, Points_array[0], Points_array[1], Beam_0, Distributed_0, 1),
-         Line(0, Points_array[2], Points_array[1], Bar_0, No_load, 1)]
-# Lines = [Line(0, Points_array[0], Points_array[1], Bar_0, Distributed_0, 1),
-#          Line(0, Points_array[2], Points_array[1], Bar_1, Distributed_0, 1)]
+Lines = [Line(0, Points_array[0], Points_array[1], Beam_0, No_load, 5),
+         Line(0, Points_array[1], Points_array[2], Beam_0, No_load, 5)]
 
 # Constrains
-Fixed_0 = constrain("Fixed_0", Points_array[0], 0, 0, 0)
+Fixed_0 = constrain("Fixed_0", Points_array[0], 0, 0, "FREE")
 Fixed_1 = constrain("Fixed_1", Points_array[2], 0, 0, "FREE")
+
 
 ###############################################################################
 ###############################################################################
