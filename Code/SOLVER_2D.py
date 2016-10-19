@@ -403,6 +403,37 @@ def M_beam4(element, job):
     return m_matrix
 
 
+def plot(title, node_numx, node_numy, results_global):
+    scale_factor = int(input("Enter the Scale Factor for the displacements: "))
+
+    if scale_factor == 0:
+        print("Scale Factor cannot be zero, set to 1")
+        scale_factor = 1
+
+    node_res_x = np.zeros(len(node_numx))
+    node_res_y = np.zeros(len(node_numx))
+    node_res_rz = np.zeros(len(node_numx))
+
+    for i in range(len(node_numx)):
+        node_res_x[i] = node_numx[i] + scale_factor * results_global[i * 3]
+        node_res_y[i] = node_numy[i] + scale_factor * results_global[i * 3 + 1]
+        node_res_rz[i] = results_global[i * 3 + 2]
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(111)
+
+    for element in job.elements:
+        x = [node_numx[int(element[2])], node_numx[int(element[3])]]
+        y = [node_numy[int(element[2])], node_numy[int(element[3])]]
+        x_def = [node_res_x[int(element[2])], node_res_x[int(element[3])]]
+        y_def = [node_res_y[int(element[2])], node_res_y[int(element[3])]]
+        ax1.plot(x, y, 'ko-')
+        ax1.plot(x_def, y_def, 'bs-')
+
+    plt.axis('equal')
+    plt.title(title)
+    plt.show()
+
 ###############################################################################
 ###############################################################################
 ###############################################################################
@@ -625,20 +656,12 @@ print("Time used: " + str(round(time.clock() - star_time, 4)) + "s\n")
 
 star_time = time.clock()
 print("Solving global system ...")
-if job.analysis == "STATIC":
+
+if job.analysis == "MODAL":
+    [eig_values, eig_vectors] = linalg.eig(stiff_matrix, mass_matrix)
+
+else:
     displacements = linalg.solve(stiff_matrix, force_vector)
-elif job.analysis == "MODAL":
-    # displacements = linalg.solve(stiff_matrix, force_vector)
-    [w, vr] = linalg.eig(stiff_matrix, mass_matrix)
-
-    print("DEBUG - w")
-    print(w)
-    #print("DEBUG - vr")
-    #print(vr)
-
-    mode_num = int(input("Enter Mode: "))
-    displacements = vr[mode_num]
-    print(displacements)
 
 print("Time used: " + str(round(time.clock() - star_time, 4)) + "s\n")
 
@@ -648,34 +671,78 @@ print("Time used: " + str(round(time.clock() - star_time, 4)) + "s\n")
 
 # Post Processing
 
-results_global_active = np.zeros(len(DOF))
-
-for i, i_g in enumerate(unknown):
-    results_global_active[i_g] = displacements[i]
-
-results_global = np.zeros(N_DOF)
-
-j = 0
-
-for i in range(N_DOF):
-    if active_DOFs[i] == False:
-        results_global[i] = 0
-        j -= 1
-    else:
-        results_global[i] = results_global_active[j]
-    j += 1
-
-print("Displacements and Rotations")
-print("#       Delta_X         Delta_Y         Delta_RZ")
-for i in range(0, len(results_global), 3):
-    print('{0:4d}    {1:4e}    {2:4e}    {3:4e}'.format(i // 3, results_global[i], results_global[i + 1], results_global[i + 2]))
-
 node_numx = np.zeros(len(job.nodes))
 node_numy = np.zeros(len(job.nodes))
+results_global_active = np.zeros(len(DOF))
 
 for i, value in enumerate(job.nodes):
     node_numx[i] = float(value[1])
     node_numy[i] = float(value[2])
+
+if job.analysis == "MODAL":
+
+    idx = eig_values.argsort()[::1]
+    eig_values = eig_values[idx]
+    eig_vectors = eig_vectors[:, idx]
+
+    print("Modes:")
+    print("   #    Frequencies (rad/s)")
+
+    for j, eig in enumerate(eig_values):
+        print('{0:4}    {1:4e}'.format(j, math.sqrt(abs(eig))))
+
+
+    displacements = np.zeros(len(eig_values))
+
+    while True:
+        n_mode = int(input("\nChoose a mode to plot (-1 to close): "))
+
+        if n_mode == -1:
+            break
+
+        for j, line in enumerate(eig_vectors):
+            displacements[j] = line[n_mode]
+
+        for i, i_g in enumerate(unknown):
+            results_global_active[i_g] = displacements[i]
+
+        results_global = np.zeros(N_DOF)
+
+        j = 0
+
+        for i in range(N_DOF):
+            if active_DOFs[i] == False:
+                results_global[i] = 0
+                j -= 1
+            else:
+                results_global[i] = results_global_active[j]
+            j += 1
+
+        plot(job.title, node_numx, node_numy, results_global)
+
+else:
+
+    for i, i_g in enumerate(unknown):
+        results_global_active[i_g] = displacements[i]
+
+    results_global = np.zeros(N_DOF)
+
+    j = 0
+
+    for i in range(N_DOF):
+        if active_DOFs[i] == False:
+            results_global[i] = 0
+            j -= 1
+        else:
+            results_global[i] = results_global_active[j]
+        j += 1
+
+    print("Displacements and Rotations:")
+    print("#       Delta_X         Delta_Y         Delta_RZ")
+    for i in range(0, len(results_global), 3):
+        print('{0:4d}    {1:4e}    {2:4e}    {3:4e}'.format(i // 3, results_global[i], results_global[i + 1], results_global[i + 2]))
+
+    plot(job.title, node_numx, node_numy, results_global)
 
 ###############################################################################
 ###############################################################################
@@ -683,35 +750,8 @@ for i, value in enumerate(job.nodes):
 
 # Plot
 
-while True:
-    scale_factor = int(input("\nEnter the Scale Factor for the displacements (0 to close the program): "))
 
-    if scale_factor == 0:
-        break
 
-    node_res_x = np.zeros(len(node_numx))
-    node_res_y = np.zeros(len(node_numx))
-    node_res_rz = np.zeros(len(node_numx))
-
-    for i in range(len(node_numx)):
-        node_res_x[i] = node_numx[i] + scale_factor * results_global[i * 3]
-        node_res_y[i] = node_numy[i] + scale_factor * results_global[i * 3 + 1]
-        node_res_rz[i] = results_global[i * 3 + 2]
-
-    fig = plt.figure()
-    ax1 = fig.add_subplot(111)
-
-    for element in job.elements:
-        x = [node_numx[int(element[2])], node_numx[int(element[3])]]
-        y = [node_numy[int(element[2])], node_numy[int(element[3])]]
-        x_def = [node_res_x[int(element[2])], node_res_x[int(element[3])]]
-        y_def = [node_res_y[int(element[2])], node_res_y[int(element[3])]]
-        ax1.plot(x, y, 'ko-')
-        ax1.plot(x_def, y_def, 'bs-')
-
-    plt.axis('equal')
-    plt.title(job.title)
-    plt.show()
 
 
 

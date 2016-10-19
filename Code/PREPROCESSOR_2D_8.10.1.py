@@ -142,7 +142,7 @@ Points_array = [Point(0, 0, 0, No_load),
                 Point(1, 1, 0, No_load)]
 
 # Lines
-Lines = [Line(0, Points_array[0], Points_array[1], Beam_0, No_load, 2)]
+Lines = [Line(0, Points_array[0], Points_array[1], Beam_0, No_load, 4)]
 
 
 # Constrains
