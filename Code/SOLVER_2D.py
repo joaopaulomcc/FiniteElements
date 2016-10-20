@@ -3,6 +3,7 @@ from scipy import linalg
 import math
 import matplotlib.pyplot as plt
 import time
+from Transient import transient
 
 ###############################################################################
 ###############################################################################
@@ -402,9 +403,80 @@ def M_beam4(element, job):
 
     return m_matrix
 
+def M_beam6(element, job):
+    # This function receives the information of a BEAM6 element and returns,
+    # it's mass matrix
+    element_propertie_name = element[1]
+    element_propertie = job.properties[element_propertie_name]
+    element_material_name = element_propertie.material
+    element_material = job.materials[element_material_name]
+
+    # E = element_material.young  # Element's young modulus
+    rho = element_material.density  # Element's density
+    A = float(element_propertie.parameters[0])  # Element's area
+    # I = float(element_propertie.parameters[1])  # Element's moment of inertia
+
+    node_0 = job.nodes[int(element[2])]
+    node_1 = job.nodes[int(element[3])]
+
+    x_0 = float(node_0[1])
+    y_0 = float(node_0[2])
+
+    x_1 = float(node_1[1])
+    y_1 = float(node_1[2])
+
+    L = math.sqrt((x_1 - x_0) ** 2 + (y_1 - y_0) ** 2)  # Element's length
+
+    c = (x_1 - x_0) / L  # Element's cos
+    s = (y_1 - y_0) / L  # Element's sin
+
+
+    # Element's stiffness matrix before rotation
+    M = np.zeros((6, 6))
+    mm = rho * A * L / 420
+    ma = rho * A * L / 6
+    leng = L
+
+    M[0][0] = 2 * ma
+    M[1][1] = 156 * mm
+    M[2][2] = 4 * leng**2 * mm
+    M[3][3] = 2 * ma
+    M[4][4] = 156 * mm
+    M[5][5] = 4 * leng**2 * mm
+    M[0][3] = ma
+    M[3][0] = M[0][3]
+    M[1][2] = 22 * leng * mm
+    M[2][1] = M[1][2]
+    M[1][4] = 54 * mm
+    M[4][1] = M[1][4]
+    M[1][5] = -13 * leng * mm
+    M[5][1] = M[1][5]
+    M[2][4] = 13 * leng * mm
+    M[4][2] = M[2][4]
+    M[2][5] = -3 * leng**2 * mm
+    M[5][2] = M[2][5]
+    M[5][4] = -22 * leng * mm
+    M[4][5] = M[5][4]
+
+    # Element's rotation matrix
+    T = np.zeros((6, 6))
+    T[0][0] = c
+    T[0][1] = -s
+    T[1][0] = s
+    T[1][1] = c
+    T[2][2] = 1
+    T[3][3] = c
+    T[3][4] = -s
+    T[4][3] = s
+    T[4][4] = c
+    T[5][5] = 1
+
+    M_Local = np.dot(np.dot(np.transpose(T), M), T)
+
+    return(M_Local)
 
 def plot(title, node_numx, node_numy, results_global):
-    scale_factor = int(input("Enter the Scale Factor for the displacements: "))
+    scale_factor = float(input("Enter the Scale Factor for the displacements: "))
 
     if scale_factor == 0:
         print("Scale Factor cannot be zero, set to 1")
@@ -434,6 +506,45 @@ def plot(title, node_numx, node_numy, results_global):
     plt.title(title)
     plt.show()
 
+def damp_rayleigh(mass_matrix, stiff_matrix, freq_vector):
+
+    mode_0 = int(input("Enter first mode number: "))
+    damp_0 = float(input("Enter mode damping: "))
+
+    mode_1 = int(input("Enter second mode number: "))
+    damp_1 = float(input("Enter mode damping: "))
+
+    freq_0 = freq_vector[mode_0]
+    freq_1 = freq_vector[mode_1]
+
+    alpha_beta = ((2 * freq_0 * freq_1) / (freq_1**2 - freq_0**2)) * np.array([[freq_1, -freq_0], [-1 / freq_1, 1 / freq_0]]) * np.array([[damp_0], [damp_1]])
+
+    alpha = alpha_beta[0][0]
+    beta = alpha_beta[1][0]
+
+    damp_matrix = alpha * mass_matrix + beta * stiff_matrix
+
+    damp_vector = np.zeros(len(freq_vector))
+
+    for i in range(len(freq_vector)):
+        damp_vector[i] = 0.5 * (alpha / freq_vector[i] + beta * freq_vector[i])
+
+    return damp_matrix, damp_vector
+
+def damp_bismark(mass_matrix, eig_vectors, freq_vector):
+
+    damp_vector = np.zeros(len(freq_vector))
+    damp_matrix = np.zeros((len(freq_vector), len(freq_vector)))
+
+    for i in range(len(freq_vector)):
+        damp_vector[i] = float(input("Enter damping for mode " + str(i) + " :"))
+        eig_vector = eig_vectors[:, i]
+        eig_vector_tp = eig_vector.transpose()
+        m_ii = np.dot(np.dot(eig_vector_tp, mass_matrix), eig_vector)
+        beta = 2 * damp_vector[i] * freq_vector[i] * m_ii
+        damp_matrix[i][i] = 1 / beta
+
+    return damp_matrix, damp_vector
 ###############################################################################
 ###############################################################################
 ###############################################################################
@@ -565,6 +676,27 @@ for element in job.elements:
                     # Relate nodes with Degrees of Freedom
                     M_Global[i_g][j_g] += M_Local[i][j]
 
+        if job.properties[element[1]].kind == "BEAM6":
+
+            M_Local = M_beam6(element, job)
+            M_MAP = np.zeros(6)
+            M_MAP[0] = int(element[2]) * 3
+            M_MAP[1] = int(element[2]) * 3 + 1
+            M_MAP[2] = int(element[2]) * 3 + 2
+            M_MAP[3] = int(element[3]) * 3
+            M_MAP[4] = int(element[3]) * 3 + 1
+            M_MAP[5] = int(element[3]) * 3 + 2
+
+            for position in M_MAP:
+                active_DOFs[int(position)] = True
+
+            for i in range(len(M_Local)):
+                for j in range(len(M_Local)):
+                    i_g = int(M_MAP[i])
+                    j_g = int(M_MAP[j])
+
+                    # Relate nodes with Degrees of Freedom
+                    M_Global[i_g][j_g] += M_Local[i][j]
 
 # Create F_Global Matrix
 for key, value in job.loads.items():
@@ -664,7 +796,7 @@ else:
     displacements = linalg.solve(stiff_matrix, force_vector)
 
 print("Time used: " + str(round(time.clock() - star_time, 4)) + "s\n")
-
+# print(displacements)
 ###############################################################################
 ###############################################################################
 ###############################################################################
@@ -685,14 +817,62 @@ if job.analysis == "MODAL":
     eig_values = eig_values[idx]
     eig_vectors = eig_vectors[:, idx]
 
+    freq_vector = np.sqrt(abs(eig_values))
+
     print("Modes:")
     print("   #    Frequencies (rad/s)")
 
-    for j, eig in enumerate(eig_values):
-        print('{0:4}    {1:4e}'.format(j, math.sqrt(abs(eig))))
+    for j, freq in enumerate(freq_vector):
+        print('{0:4}    {1:4e}'.format(j, freq))
 
+    # Normalizing eigenvectors by the mass matrix
 
-    displacements = np.zeros(len(eig_values))
+    for k in range(len(eig_values)):
+        eig_vector = eig_vectors[:, k]
+        eig_vector_tp = eig_vector.transpose()
+        m_ii = np.dot(np.dot(eig_vector_tp, mass_matrix), eig_vector)
+        eig_vectors[:, k] = math.sqrt((1 / m_ii)) * eig_vectors[:, k]
+
+    # Calculate damping matrix
+
+    calc_yn = input("\nCalculate Damping Matrix (Y/N): ")
+    calc_yn = calc_yn.upper()
+
+    damp_matrix = np.zeros((len(eig_values), len(eig_values)))
+
+    if calc_yn == 'Y':
+        damp_method = input("Method (R for Rayleigh, B for Bismark)?: ")
+        damp_method = damp_method.upper()
+
+        if damp_method == 'R':
+            damp_matrix, damp_vector = damp_rayleigh(mass_matrix,
+                                                     stiff_matrix,
+                                                     freq_vector)
+        elif damp_method == 'B':
+            damp_matrix, damp_vector = damp_bismark(mass_matrix,
+                                                    eig_vectors,
+                                                    freq_vector)
+        else:
+            print("Method was not recognized, continuing without calculating damping matrix.")
+
+    calc_yn = input("\nCalculate Transient Response (Y/N): ")
+    calc_yn = calc_yn.upper()
+
+    if calc_yn == 'Y':
+        t_step = math.pi / max(freq_vector)
+        disp_0 = np.zeros(len(freq_vector))
+        vel_0 = np.zeros(len(freq_vector))
+
+        t_f = float(input("Enter simulation time: "))
+
+        disp, vel, acc = transient(mass_matrix, stiff_matrix, damp_matrix,
+                                   force_vector, disp_0, vel_0, 0.0001, 0,
+                                   t_f)
+
+        print(disp[:, 1])
+        plt.plot(disp[:, 1])
+        plt.show()
+
 
     while True:
         n_mode = int(input("\nChoose a mode to plot (-1 to close): "))
@@ -700,8 +880,7 @@ if job.analysis == "MODAL":
         if n_mode == -1:
             break
 
-        for j, line in enumerate(eig_vectors):
-            displacements[j] = line[n_mode]
+        displacements = eig_vectors[:, n_mode]
 
         for i, i_g in enumerate(unknown):
             results_global_active[i_g] = displacements[i]
@@ -719,6 +898,8 @@ if job.analysis == "MODAL":
             j += 1
 
         plot(job.title, node_numx, node_numy, results_global)
+
+
 
 else:
 

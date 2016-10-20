@@ -1,0 +1,41 @@
+#TITLE
+Kwon_e_Bang_8.10.3
+#
+#ANALYSIS
+MODAL
+#
+#MATERIALS
+Mat_0    1000    100000000000.0    0.33
+#
+#PROPERTIES
+Beam_0    BEAM6    Mat_0    0.0001    8.333e-10
+#
+#LOADS
+#
+#CONSTRAINS
+Fixed_0    0    0    0    0
+#
+#ELEMENTS
+0    Beam_0    0    3
+1    Beam_0    3    4
+2    Beam_0    4    5
+3    Beam_0    5    6
+4    Beam_0    6    1
+5    Beam_0    1    7
+6    Beam_0    7    8
+7    Beam_0    8    9
+8    Beam_0    9    10
+9    Beam_0    10    2
+#
+#NODES
+0    0.0    0.0    0.0
+1    0.0    1.0    0.0
+2    1.0    1.0    0.0
+3    0.0    0.2    0.0
+4    0.0    0.4    0.0
+5    0.0    0.6    0.0
+6    0.0    0.8    0.0
+7    0.2    1.0    0.0
+8    0.4    1.0    0.0
+9    0.6    1.0    0.0
+10    0.8    1.0    0.0

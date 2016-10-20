@@ -122,41 +122,34 @@ class constrain:
 
 # Title
 
-title = "Inclined_Beam"
+title = "Kwon_e_Bang_8.10.3"
 
 # Analysis Type
 
-analysis_type = "STATIC"
+analysis_type = "MODAL"
 
 # Materials
-AL7075_T6 = material("AL7075-T6", 2810, 71.7e9, 0.33)
+Mat_0 = material("Mat_0", 1000, 100e9, 0.33)
 
 # Properties
-Beam_0 = propertie("Beam_0", "BEAM6", AL7075_T6, [2e-4, 6.7e-9])
-Beam_1 = propertie("Beam_1", "BEAM6", AL7075_T6, [1e-4, 8e-10])
-
-# Bar_0 = propertie("Bar_0", "BAR", AL7075_T6, [2e4])
-# Bar_1 = propertie("Bar_1", "BAR", AL7075_T6, [1e4])
+Beam_0 = propertie("Beam_0", "BEAM6", Mat_0, [0.0001, 8.333e-10])
 
 # Loads
 No_load = load("No_load", "NO_LOAD", [0])
-Force_0 = load("Force_0", "CONCENTRATED", [0, -10, 0])
-#Distributed_0 = load("Distributed_0", "DISTRIBUTED", [0, -100])
 
 # Points
 Points_array = [Point(0, 0, 0, No_load),
-                Point(1, 1, 1, Force_0)]
-#                Point(2, 2, 2, Force_0)]
+                Point(1, 0, 1, No_load),
+                Point(2, 1, 1, No_load)]
 
 # Lines
-Lines = [Line(0, Points_array[0], Points_array[1], Beam_0, No_load, 1)]
-#         Line(1, Points_array[1], Points_array[2], Beam_1, No_load, 10)]
-# Lines = [Line(0, Points_array[0], Points_array[1], Bar_0, Distributed_0, 1),
-#          Line(0, Points_array[2], Points_array[1], Bar_1, Distributed_0, 1)]
+Lines = [Line(0, Points_array[0], Points_array[1], Beam_0, No_load, 5),
+         Line(0, Points_array[1], Points_array[2], Beam_0, No_load, 5)]
 
 # Constrains
 Fixed_0 = constrain("Fixed_0", Points_array[0], 0, 0, 0)
-# Fixed_1 = constrain("Fixed_1", Points_array[2], 0, 0, "FREE")
+
+
 
 ###############################################################################
 ###############################################################################

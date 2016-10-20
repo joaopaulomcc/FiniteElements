@@ -1,5 +1,5 @@
 #TITLE
-Cantilever_Beam
+Inclined_Beam
 #
 #ANALYSIS
 STATIC
@@ -8,11 +8,11 @@ STATIC
 AL7075-T6    2810    71700000000.0    0.33
 #
 #PROPERTIES
-Beam_0    BEAM4    AL7075-T6    0.0002    6.7e-09
+Beam_0    BEAM6    AL7075-T6    0.0002    6.7e-09
+Beam_1    BEAM6    AL7075-T6    0.0001    8e-10
 #
 #LOADS
-Force_0_0    CONCENTRATED    1    0    0    0
-Distributed_0_0    DISTRIBUTED    0    1    0    -100
+Force_0_0    CONCENTRATED    1    0    -10    0
 #
 #CONSTRAINS
 Fixed_0    0    0    0    0
@@ -22,4 +22,4 @@ Fixed_0    0    0    0    0
 #
 #NODES
 0    0.0    0.0    0.0
-1    1.0    0.0    0.0
+1    1.0    1.0    0.0
