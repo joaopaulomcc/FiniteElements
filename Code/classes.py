@@ -65,7 +65,9 @@ class AppliedLoad:
         self.name = load.name + "_" + str(counter)
         self.kind = load.kind
         self.nodes = nodes
-        self.parameters = load.parameters
+        self.fx = load.fx
+        self.fy = load.fy
+        self.mz = load.mz
 
 
 class Constrain:
@@ -138,3 +140,28 @@ class Line:
             local_nodes[i][1] = local_nodes[i - 1][1] + delta_y
 
         return local_nodes
+
+
+class Node:
+    # A Node
+
+    instances = []
+
+    def __init__(self, x, y, rz):
+        self.__class__.instances.append(self)
+        self.x = x
+        self.y = y
+        self.rz = rz
+
+
+class Element:
+    # An element is a finite element, it has a property, and the
+    # nodes that it connects
+
+    instances = []
+
+    def __init__(self, prop, node_0, node_1):
+        self.__class__.instances.append(self)
+        self.prop = prop
+        self.node_0 = node_0
+        self.node_1 = node_1
