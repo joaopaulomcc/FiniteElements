@@ -38,9 +38,9 @@ beam_0 = Property("Beam_0", "BEAM4", AL7075_T6, 2e-4, 6.7e-9)
 # load_0 = Load("Load_Name", "Load_Kind", fx, fy, mz)
 # load_0 = Load(string, string, float, float, float)
 
-no_load = Load("No_load", "NO_LOAD", 0, 0, 0)
-force_0 = Load("Force_0", "CONCENTRATED", 0, -10, 0)
-distributed_0 = Load("distributed_0", "DISTRIBUTED", 0, -10, 0)
+no_load = Load("No_load", "NO_LOAD", 0, 0, 0, 0, 0)
+force_0 = Load("Force_0", "CONCENTRATED", 0, -10, 0, 0, 0)
+distributed_0 = Load("distributed_0", "DISTRIBUTED", 0, -10, 0, 0, 0)
 
 ###############################################################################
 # POINTS - The points used to create the geometry and apply loads
@@ -55,7 +55,7 @@ point_1 = Point(1, 1, 0, force_0)
 # line_0 = Line(Line_number, Line_point0, Line_point1, Line_propery, Line_load, n_elements)
 # line_0 = Line(int, Point_object, Point_object, Property_object, Load_object, int)
 
-line_0 = Line(0, point_0, point_1, beam_0, distributed_0, 2)
+line_0 = Line(0, point_0, point_1, beam_0, distributed_0, 10)
 
 ###############################################################################
 # Constrains - applied to points, if a degree of freedom is not fixed,

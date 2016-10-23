@@ -552,7 +552,7 @@ def damp_bismark(mass_matrix, eig_vectors, freq_vector):
 # Execution code
 
 # Read Input File
-
+plt.style.use('ggplot')
 print("#####################################")
 print("##         SOLVER - 2D             ##")
 print("#####################################")

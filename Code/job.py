@@ -81,6 +81,9 @@ def job():
 
     ###########################################################################
     # Creating Nodes and Elements
+
+    print(Node.instances)
+
     star_time = time.clock()
     print("\nCreating mesh ...")
 
@@ -129,3 +132,4 @@ def job():
 
             local2global(mass_local, mass_global, map_vector)
 
+###############################################################################

@@ -132,7 +132,7 @@ analysis_type = "STATIC"
 Aluminium = material("Aluminium", 2810, 80e9, 0.33)
 
 # Properties
-Beam_0 = propertie("Beam_0", "BEAM4", Aluminium, [0.0008, 1.06666667e-07])
+Beam_0 = propertie("Beam_0", "BEAM6", Aluminium, [0.0008, 1.06666667e-07])
 Bar_0 = propertie("Bar_0", "BAR", Aluminium, [1.9634954084936207e-05])
 
 
@@ -146,7 +146,7 @@ Points_array = [Point(0, 0, 0.5, No_load),
                 Point(2, 0, 0, No_load)]
 
 # Lines
-Lines = [Line(0, Points_array[0], Points_array[1], Beam_0, Distributed_0, 1),
+Lines = [Line(0, Points_array[0], Points_array[1], Beam_0, Distributed_0,10),
          Line(0, Points_array[2], Points_array[1], Bar_0, No_load, 1)]
 # Lines = [Line(0, Points_array[0], Points_array[1], Bar_0, Distributed_0, 1),
 #          Line(0, Points_array[2], Points_array[1], Bar_1, Distributed_0, 1)]

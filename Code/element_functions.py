@@ -245,3 +245,69 @@ def local_mass_matrix(element):
         mass_local = np.dot(np.dot(np.transpose(t), m), t)
 
         return mass_local
+
+
+def global_force_vector(app_load, force_global, nodes_array):
+    # This function creates the global force vector, it is actually 3 vectors
+    # containing the load magnitude, frequency and phase, they are used
+    # in transient analysis
+
+    if app_load.kind == "CONCENTRATED":
+
+        node = int(app_load.nodes[0])
+        fx = app_load.fx
+        fy = app_load.fy
+        mz = app_load.mz
+        freq = app_load.freq
+        phase = app_load.phase
+        force_global[node * 3][0] += fx
+        force_global[node * 3][1] += freq
+        force_global[node * 3][2] += phase
+        force_global[node * 3 + 1][0] += fy
+        force_global[node * 3 + 1][1] += freq
+        force_global[node * 3 + 1][2] += phase
+        force_global[node * 3 + 2][0] += mz
+        force_global[node * 3 + 2][1] += freq
+        force_global[node * 3 + 2][2] += phase
+
+    elif app_load.kind == "DISTRIBUTED":
+
+        node_0 = app_load.nodes[0]
+        node_1 = app_load.nodes[1]
+        fx = app_load.fx
+        fy = app_load.fy
+        freq = app_load.freq
+        phase = app_load.phase
+
+        node_0_index = nodes_array.index(node_0)
+        node_1_index = nodes_array.index(node_1)
+
+        l = math.sqrt((node_1.x - node_0.x)**2 + (node_1.y - node_0.y)**2)
+
+        # Node 0
+        force_global[node_0_index * 3][0] += (fx * l / 2)
+        force_global[node_0_index * 3][1] = freq
+        force_global[node_0_index * 3][2] = phase
+
+        force_global[node_0_index * 3 + 1][0] += (fy * l / 2)
+        force_global[node_0_index * 3 + 1][1] = freq
+        force_global[node_0_index * 3 + 1][2] = phase
+
+        force_global[node_0_index * 3 + 2][0] += (fy * l**2 / 12)
+        force_global[node_0_index * 3 + 2][1] = freq
+        force_global[node_0_index * 3 + 2][2] = phase
+
+        # Node 1
+        force_global[node_1_index * 3][0] += (fx * l / 2)
+        force_global[node_1_index * 3][1] = freq
+        force_global[node_1_index * 3][2] = phase
+
+        force_global[node_1_index * 3 + 1][0] += (fy * l / 2)
+        force_global[node_1_index * 3 + 1][1] = freq
+        force_global[node_1_index * 3 + 1][2] = phase
+
+        force_global[node_1_index * 3 + 2][0] += (fy * l ** 2 / 12)
+        force_global[node_1_index * 3 + 2][1] = freq
+        force_global[node_1_index * 3 + 2][2] = phase
+
+    return

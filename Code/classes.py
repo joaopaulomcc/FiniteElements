@@ -43,13 +43,15 @@ class Load:
 
     instances = []
 
-    def __init__(self, name, kind, fx, fy, mz):
+    def __init__(self, name, kind, fx, fy, mz, freq, phase):
         self.__class__.instances.append(self)
         self.name = name
         self.kind = kind
         self.fx = fx
         self.fy = fy
         self.mz = mz
+        self.freq = freq
+        self.phase = phase
 
 
 class AppliedLoad:
@@ -68,6 +70,8 @@ class AppliedLoad:
         self.fx = load.fx
         self.fy = load.fy
         self.mz = load.mz
+        self.freq = load.freq
+        self.phase = load.phase
 
 
 class Constrain:
