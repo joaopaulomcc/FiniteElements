@@ -1,11 +1,13 @@
 import numpy as np
 from scipy import linalg
+import matplotlib.pyplot as plt
 
 
 def transient(mass_matrix,
               stiff_matrix,
               damp_matrix,
-              force,
+              force_vector,
+              constrained_dofs,
               disp_0,
               vel_0,
               t_step,
@@ -19,9 +21,9 @@ def transient(mass_matrix,
     k = stiff_matrix
     c = damp_matrix
 
-    force_mag = force[:, 0]
-    force_freq = force[:, 1]
-    force_phase = force[:, 2]
+    force_mag = force_vector[:, 0]
+    force_freq = force_vector[:, 1]
+    force_phase = force_vector[:, 2]
 
     n_t_steps = int(np.fix(((t_f - t_0) / t_step)))
     disp = np.zeros((len(disp_0), n_t_steps + 1))
@@ -41,9 +43,11 @@ def transient(mass_matrix,
         aux_matrix = force[:, i] - np.dot(c, vel[:, i]) - np.dot(k, disp[:, i])
         acc[:, i] = np.dot(m_inv, aux_matrix)
 
-        # NEEDS TO BE CHANGED TO THE GENERAL CASE
-        acc[0, i] = 0
-        acc[1, i] = 0
+        # Sets constrained degrees of freedom acceleration to zero
+        for j in range(len(acc[:, i])):
+            if j in constrained_dofs:
+                acc[j, i] = 0
+
         if i == 0:
             vel[:, i + 1] = vel_fic + t_step * acc[:, i]
         else:
@@ -51,14 +55,14 @@ def transient(mass_matrix,
 
         disp[:, i + 1] = disp[:, i] + t_step * vel[:, i + 1]
         force[:, i + 1] = force_mag * \
-                          np.cos(force_freq * (i + i) * t_step  + force_phase)
+                          np.cos(force_freq * (i + i) * t_step + force_phase)
 
     aux_matrix = force[:, n_t_steps] - np.dot(c, vel[:, n_t_steps]) - \
                  np.dot(k, disp[:, n_t_steps])
     acc[:, n_t_steps] = np.dot(m_inv, aux_matrix)
 
-    # time = np.array([t_0 + i * t_step for i in range(n_t_steps + 1)])
-    # plt.plot(time, disp[8, :])
-    # plt.show()
+    time = np.array([t_0 + i * t_step for i in range(n_t_steps + 1)])
+    plt.plot(time, disp[8, :])
+    plt.show()
 
-    return disp, vel, acc
+    return disp, vel, acc, force, time

@@ -85,7 +85,7 @@ class Constrain:
     def __init__(self, name, point, x, y, rz):
         self.__class__.instances.append(self)
         self.name = name
-        self.point = point.number
+        self.node = point.number
         self.x = x
         self.y = y
         self.rz = rz

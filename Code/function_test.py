@@ -2,6 +2,7 @@ import numpy as np
 from Transient import transient
 import math
 from scipy import linalg
+from functions import get_normalized_eigs
 
 K = np.array([[ 1.0240,  0.1280, -1.0240,  0.1280,       0,       0,       0,       0,       0,       0],
               [ 0.1280,  0.0213, -0.1280,  0.0107,       0,       0,       0,       0,       0,       0],
@@ -29,7 +30,7 @@ M = np.array([[ 0.3714,  0.0131,  0.1286, -0.0077,       0,       0,       0,   
 
 #Minv = linalg.inv(M)
 #print(Minv)
-
+constrained_dofs = [0, 1]
 force = np.array([[   0, 0, 0],
                   [   0, 0, 0],
                   [   0, 0, 0],
@@ -43,7 +44,7 @@ force = np.array([[   0, 0, 0],
 
 C = np.zeros((10, 10))
 
-
+get_normalized_eigs(K, M)
 disp_0 = np.zeros((10, 1))
 vel_0 = np.zeros((10, 1))
 t_step = 0.0001
@@ -64,10 +65,12 @@ transient(M,
           K,
           C,
           force,
+          constrained_dofs,
           disp_0,
           vel_0,
           t_step,
           t_0,
           t_f)
+
 
 
