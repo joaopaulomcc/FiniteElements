@@ -28,6 +28,9 @@ from post_proc_functions import post_proc_static
 from post_proc_functions import post_proc_modal
 from post_proc_functions import post_proc_transdir
 
+import matplotlib.animation as animation
+import matplotlib.pyplot as plt
+
 print("######################################################################")
 print("##               FINITE ELEMENT ANALYSIS - João Paulo               ##")
 print("######################################################################")
@@ -113,7 +116,6 @@ stiff_global = np.zeros((n_dof, n_dof))  # Global Stiffness Matrix
 
 if analysis_type != "STATIC":
     mass_global = np.zeros((n_dof, n_dof))  # Global Mass Matrix
-    # damp_global = np.zeros((n_dof, n_dof))  # Global Damping Matrix
 
 disp_global = np.zeros((n_dof, 1))  # Global Displacement vector
 force_global = np.zeros((n_dof, 3))  # Global Force Vector
@@ -367,11 +369,25 @@ if analysis_type == "STATIC":
 
 elif analysis_type == "MODAL":
 
-    post_proc_modal()
-
+    post_proc_modal(title,
+                    nodes_orig_coord,
+                    eig_vectors,
+                    freq_vector,
+                    n_dof,
+                    unconstrained_dofs,
+                    active_dofs,
+                    degrees_of_freedom,
+                    nodes_array,
+                    elements_array)
 
 elif analysis_type == "TRANSDIR":
-    post_proc_transdir()
+
+    post_proc_transdir(title,
+                       nodes_orig_coord,
+                       disp,
+                       time_arr,
+                       nodes_array,
+                       elements_array)
 
 
 

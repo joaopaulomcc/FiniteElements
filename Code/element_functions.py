@@ -80,12 +80,12 @@ def local_stiff_matrix(element, nodes_array):
         # Element's rotation matrix
         t = np.zeros((4, 4))
         t[0][0] = c
-        t[0][1] = -s
-        t[1][0] = s
+        t[0][1] = s
+        t[1][0] = -s
         t[1][1] = c
         t[2][2] = c
-        t[2][3] = -s
-        t[3][2] = s
+        t[2][3] = s
+        t[3][2] = -s
         t[3][3] = c
 
         stiff_local = np.dot(np.dot(np.transpose(t), k), t)
@@ -134,13 +134,13 @@ def local_stiff_matrix(element, nodes_array):
         # Element's rotation matrix
         t = np.zeros((6, 6))
         t[0][0] = c
-        t[0][1] = -s
-        t[1][0] = s
+        t[0][1] = s
+        t[1][0] = -s
         t[1][1] = c
         t[2][2] = 1
         t[3][3] = c
-        t[3][4] = -s
-        t[4][3] = s
+        t[3][4] = s
+        t[4][3] = -s
         t[4][4] = c
         t[5][5] = 1
 
@@ -190,12 +190,12 @@ def local_mass_matrix(element):
         # Element's rotation matrix
         t = np.zeros((4, 4))
         t[0][0] = c
-        t[0][1] = -s
-        t[1][0] = s
+        t[0][1] = s
+        t[1][0] = -s
         t[1][1] = c
         t[2][2] = c
-        t[2][3] = -s
-        t[3][2] = s
+        t[2][3] = s
+        t[3][2] = -s
         t[3][3] = c
 
         m_matrix = np.dot(np.dot(np.transpose(t), m), t)
@@ -232,13 +232,13 @@ def local_mass_matrix(element):
         # Element's rotation matrix
         t = np.zeros((6, 6))
         t[0][0] = c
-        t[0][1] = -s
-        t[1][0] = s
+        t[0][1] = s
+        t[1][0] = -s
         t[1][1] = c
         t[2][2] = 1
         t[3][3] = c
-        t[3][4] = -s
-        t[4][3] = s
+        t[3][4] = s
+        t[4][3] = -s
         t[4][4] = c
         t[5][5] = 1
 

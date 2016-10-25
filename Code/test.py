@@ -61,8 +61,9 @@ force = mag * np.sin(freq * t + phase)
 force_mag = force[:, 0]
 print(force_mag)
 
-f = float("He")
 
-print("\nReading input file ...")
-star_time = time.clock()
-print("Time used: " + str(round(time.clock() - star_time, 4)) + "s")
+
+
+
+A = np.zeros((3,2))
+print(len(A))

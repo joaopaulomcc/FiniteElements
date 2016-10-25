@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 import numpy as np
 
 
@@ -88,8 +89,119 @@ def post_proc_static(title,
 
     return None
 
-def post_proc_modal():
-    pass
 
-def post_proc_transdir():
-    pass
+def post_proc_modal(title,
+                    nodes_orig_coord,
+                    eig_vectors,
+                    freq_vector,
+                    n_dof,
+                    unconstrained_dofs,
+                    active_dofs,
+                    degrees_of_freedom,
+                    nodes_array,
+                    elements_array):
+
+    print("Modes:")
+    print("   #    Frequencies (rad/s)")
+
+    for j, freq in enumerate(freq_vector):
+        print('{0:4}    {1:4e}'.format(j, freq))
+
+
+    while True:
+
+        n_mode = int(input("\nChoose a mode to plot (-1 to close): "))
+
+        if n_mode == -1:
+            break
+
+        else:
+
+            results_global_active = np.zeros(len(degrees_of_freedom))
+
+            displacements = eig_vectors[:, n_mode]
+
+            for i, i_g in enumerate(unconstrained_dofs):
+                results_global_active[i_g] = displacements[i]
+
+            results_global = np.zeros(n_dof)
+
+            j = 0
+
+            for i in range(n_dof):
+                if active_dofs[i] == False:
+                    results_global[i] = 0
+                    j -= 1
+                else:
+                    results_global[i] = results_global_active[j]
+                j += 1
+
+
+            plot_results(title,
+                         nodes_orig_coord[:, 0],
+                         nodes_orig_coord[:, 1],
+                         results_global,
+                         nodes_array,
+                         elements_array)
+
+
+def post_proc_transdir(title,
+                       nodes_orig_coord,
+                       displacements,
+                       time_arr,
+                       nodes_array,
+                       elements_array):
+
+    scale_factor = float(
+        input("\nEnter the Scale Factor for the displacements: "))
+
+    if scale_factor == 0:
+        print("ERROR: Scale Factor cannot be zero, set to 1")
+        scale_factor = 1
+
+    node_res_x = np.zeros((len(nodes_orig_coord), len(time_arr)))
+    node_res_y = np.zeros((len(nodes_orig_coord), len(time_arr)))
+    node_res_rz = np.zeros((len(nodes_orig_coord), len(time_arr)))
+
+    for i in range(len(nodes_orig_coord)):
+        node_res_x[i, :] = nodes_orig_coord[i, 0] + scale_factor * \
+                                                    displacements[i * 3, :]
+        node_res_y[i, :] = nodes_orig_coord[i, 1] + scale_factor * \
+                                                    displacements[i * 3 + 1, :]
+        node_res_rz[i, :] = nodes_orig_coord[i, 2] + \
+                            scale_factor * displacements[i * 3 + 2, :]
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(111)
+    time_text = ax1.text(2, 0.65, r'$\cos(2 \pi t) \exp(-t)$')
+
+    def animate(i):
+
+        ax1.clear()
+
+        for element in elements_array:
+            node_0 = element.node_0
+            node_1 = element.node_1
+            node_0_index = nodes_array.index(node_0)
+            node_1_index = nodes_array.index(node_1)
+
+            x = [nodes_orig_coord[node_0_index, 0],
+                 nodes_orig_coord[node_1_index, 0]]
+            y = [nodes_orig_coord[node_0_index, 1],
+                 nodes_orig_coord[node_1_index, 1]]
+
+            x_def = [node_res_x[node_0_index][i],
+                     node_res_x[node_1_index][i]]
+            y_def = [node_res_y[node_0_index][i],
+                     node_res_y[node_1_index][i]]
+
+            ax1.plot(x, y, 'ko-')
+            ax1.plot(x_def, y_def, 'bs-')
+            ax1.text(2, 0.65, "Time: " + str(time_arr[i]) + "s")
+
+        plt.axis('equal')
+        plt.title(title)
+
+
+    ani = animation.FuncAnimation(fig, animate)
+    plt.show()
