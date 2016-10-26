@@ -201,6 +201,7 @@ def post_proc_transdir(title,
 
         plt.axis('equal')
         plt.title(title)
+        print(time_arr[i])
 
 
     ani = animation.FuncAnimation(fig, animate)
