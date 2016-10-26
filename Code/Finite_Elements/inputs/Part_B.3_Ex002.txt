@@ -1,0 +1,75 @@
+#########################################################
+# João Paulo Monteiro Cruvinel da Costa                 #  
+# Parte B.3 - Exercício 2: Meirovitch 10.5              #
+# The input file is a .txt but it will be evaluated as  #
+# python code, every comment should be                  #
+# preceded by a #                                       #
+#########################################################
+
+###############################################################################
+# TITLE - How you want to call your analysis
+# title = string
+
+title = "Part_B.3_Ex002"
+
+###############################################################################
+# MATERIALS - The materials you will use in your analysis
+# material_0 = Material("Mat Name", mat_density, mat_elastic_modulus, mat_poisson_ratio)
+# material_0 = Material(string, float, float, float)
+
+mat_0 = Material("mat_0", 1, 1, 0.33)
+mat_1 = Material("mat_1", 1.2, 1, 0.33)
+
+###############################################################################
+# PROPERTIES - The properties you are going to use
+# The Prop_Kind types are:
+#   "BAR" = a truss element
+#   "BEAM4" = a beam element, does not resist to axial load
+#   "BEAM6" = a frame element BAR + BEAM4
+# property_0 = Property("Prop_name", "Prop_Kind", Prop_Material, Section_Area, Section_Inertia)
+# property_0 = Property(string, string, Material_object, float, float)
+
+beam_0 = Property("Beam_0", "BEAM6", mat_0, 1, 1)
+beam_1 = Property("Beam_1", "BEAM6", mat_1, 1, 2)
+
+
+###############################################################################
+# LOADS - The loads you will apply
+# The Load_kind type are:
+#   "NO_LOAD" = no load is applied, used to create points with no loads
+#   "CONCENTRATED" = concentrated load, can be applied to points
+#   "DISTRIBUTED" = distributed load, can be applied to Line
+# load_0 = Load("Load_Name", "Load_Kind", fx, fy, mz, frequency, phase)
+# load_0 = Load(string, string, float, float, float)
+
+no_load = Load("No_load", "NO_LOAD", 0, 0, 0, 0, 0)
+
+###############################################################################
+# POINTS - The points used to create the geometry and apply loads
+# point_0 = Point(Point_number, Point_x, Point_y, Load)
+# point_0 = Point(int, float, float, Load_object)
+
+point_0 = Point(0, 0, 0, no_load)
+point_1 = Point(1, 0, 1, no_load)
+point_2 = Point(2, 1.6, 1, no_load)
+point_3 = Point(3, 1.6, 0, no_load)
+
+
+###############################################################################
+# LINES - The lines used to create the geometry and apply loads
+# line_0 = Line(Line_number, Line_point0, Line_point1, Line_propery, Line_load, n_elements)
+# line_0 = Line(int, Point_object, Point_object, Property_object, Load_object, int)
+
+line_0 = Line(0, point_0, point_1, beam_0, no_load, 2)
+line_1 = Line(1, point_1, point_2, beam_1, no_load, 2)
+line_2 = Line(2, point_2, point_3, beam_0, no_load, 2)
+
+
+###############################################################################
+# Constrains - applied to points, if a degree of freedom is not fixed,
+#              it's value should be "FREE"
+# encastre_0 = Constrain("Constrain_name", Constrain_point, x, y, rz)
+# encastre_0 = Constrain(string, Point_object, float or string, float or string, float or string)
+
+encastre_0 = Constrain("encastre_0 ", point_0, 0, 0, 0)
+encastre_0  = Constrain("encastre_0 ", point_3, 0, 0, 0)
