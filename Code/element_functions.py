@@ -2,6 +2,7 @@
 
 import numpy as np
 import math
+import sys
 
 
 def local_stiff_matrix(element, nodes_array):
@@ -311,3 +312,65 @@ def global_force_vector(app_load, force_global, nodes_array):
         force_global[node_1_index * 3 + 2][2] = phase
 
     return
+
+def local_geo_stiff_matrix(element):
+
+    element_kind = element.prop.kind
+
+    x_0 = element.node_0.x
+    y_0 = element.node_0.y
+    x_1 = element.node_1.x
+    y_1 = element.node_1.y
+
+    l = math.sqrt((x_1 - x_0) ** 2 + (y_1 - y_0) ** 2)  # Element's length
+
+    c = (x_1 - x_0) / l  # Element's cos
+    s = (y_1 - y_0) / l  # Element's sin
+
+    if element_kind == "BEAM4":
+        # This function receives the information of a BEAM4
+        # element and returns, it's geometric stiffness matrix
+
+        e = element.prop.material.young  # Element's young modulus
+        i = element.prop.inertia  # Element's moment of inertia
+
+        # Element's stiffness matrix before rotation
+        k = np.zeros((4, 4))
+        k[0][0] = 12
+        k[0][1] = 6 * l
+        k[0][2] = -12
+        k[0][3] = 6 * l
+        k[1][0] = 6 * l
+        k[1][1] = 4 * l ** 2
+        k[1][2] = -6 * l
+        k[1][3] = 2 * l ** 2
+        k[2][0] = -12
+        k[2][1] = -6 * l
+        k[2][2] = 12
+        k[2][3] = -6 * l
+        k[3][0] = 6 * l
+        k[3][1] = 2 * l ** 2
+        k[3][2] = -6 * l
+        k[3][3] = 4 * l ** 2
+
+        k *= ((e * i) / (l ** 3))
+
+        # Element's rotation matrix
+        t = np.zeros((4, 4))
+        t[0][0] = c
+        t[0][1] = s
+        t[1][0] = -s
+        t[1][1] = c
+        t[2][2] = c
+        t[2][3] = s
+        t[3][2] = -s
+        t[3][3] = c
+
+        geo_stiff_local = np.dot(np.dot(np.transpose(t), k), t)
+
+        return geo_stiff_local
+
+    else:
+        print("Buckling analysis is implemented for BAR4 elements only\n"
+              "Quiting program")
+        sys.exit()

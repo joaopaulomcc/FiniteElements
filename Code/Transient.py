@@ -34,8 +34,9 @@ def transient(mass_matrix,
     disp[:, 0] = disp_0[:, 0]
     vel[:, 0] = vel_0[:, 0]
     force[:, 0] = force_mag * np.cos(force_freq * 0 + force_phase)
-    vel_fic = disp[:, 0] - t_step * vel[:, 0] + 0.5 * (t_step**2) * acc[:, 0]
-    vel_fic = (disp[:, 0] - vel_fic) / t_step
+
+    #print(vel_fic)
+
 
     m_inv = linalg.inv(m)
 
@@ -48,10 +49,8 @@ def transient(mass_matrix,
             if j in constrained_dofs:
                 acc[j, i] = 0
 
-        if i == 0:
-            vel[:, i + 1] = vel_fic + t_step * acc[:, i]
-        else:
-            vel[:, i + 1] = vel[:, i] + t_step * acc[:, i]
+
+        vel[:, i + 1] = vel[:, i] + t_step * acc[:, i]
 
         disp[:, i + 1] = disp[:, i] + t_step * vel[:, i + 1]
         force[:, i + 1] = force_mag * \
@@ -62,7 +61,15 @@ def transient(mass_matrix,
     acc[:, n_t_steps] = np.dot(m_inv, aux_matrix)
 
     time = np.array([t_0 + i * t_step for i in range(n_t_steps + 1)])
-    plt.plot(time, disp[8, :])
+    plt.plot(time, disp[10, :])
     plt.show()
 
+#    print("M inv")
+#    print(m_inv)
+#    print("acc")
+#    print(acc)
+#    print("vel")
+#    print(vel)
+#    print("disp")
+#    print(disp)
     return disp, vel, acc, force, time

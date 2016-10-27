@@ -1,6 +1,8 @@
+inputs/Part_B.3_Ex001.txt
 inputs/Part_B.3_Ex002.txt
 inputs/Part_B.4a_Ex002_Bang_8.9.1.txt
 inputs/Part_B.4a_Ex002_Bang_8.9.5.txt
 inputs/Part_B.4a_Ex002_Bang_8.10.1.txt
 inputs/Part_B.4a_Ex002_Bang_8.10.3.txt
 inputs/Part_B.4a_Ex002_Bang_8.11.1.txt
+inputs/Part_B.4a_Ex002_ADINA_Bathe.txt

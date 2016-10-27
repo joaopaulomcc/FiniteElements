@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
-
+plt.style.use('ggplot')
 
 def plot_results(title,
                  node_numx,
@@ -137,7 +137,7 @@ def post_proc_modal(title,
                 j += 1
 
 
-            plot_results(title,
+            plot_results(title + "_Mode_" + str(n_mode),
                          nodes_orig_coord[:, 0],
                          nodes_orig_coord[:, 1],
                          results_global,
@@ -173,7 +173,6 @@ def post_proc_transdir(title,
 
     fig = plt.figure()
     ax1 = fig.add_subplot(111)
-    time_text = ax1.text(2, 0.65, r'$\cos(2 \pi t) \exp(-t)$')
 
     def animate(i):
 
@@ -197,12 +196,57 @@ def post_proc_transdir(title,
 
             ax1.plot(x, y, 'ko-')
             ax1.plot(x_def, y_def, 'bs-')
-            ax1.text(2, 0.65, "Time: " + str(time_arr[i]) + "s")
+            ax1.text(2, 0.65, "Time: %.4f" % time_arr[i])
 
         plt.axis('equal')
         plt.title(title)
-        print(time_arr[i])
+        plt.ylim(-.4, 0.4)
+        time_string = "time: " + str(round(time_arr[i], 4)) + " s"
+        plt.text(0.02, 0.9, time_string, transform=ax1.transAxes,
+                 fontsize=15)
 
-
-    ani = animation.FuncAnimation(fig, animate)
+    sample = [x for x in range(0, len(time_arr), int(len(time_arr)/ 1000))]
+    ani = animation.FuncAnimation(fig, animate, sample)
     plt.show()
+
+def post_proc_buckling(title,
+                       nodes_orig_coord,
+                       eig_vectors,
+                       eig_values,
+                       n_dof,
+                       unconstrained_dofs,
+                       active_dofs,
+                       degrees_of_freedom,
+                       nodes_array,
+                       elements_array)
+
+    print("Buckling Critical Load:")
+    print("%.4e N" % max(eig_values))
+
+    n_mode = int(eig_values.index(max(eig_values)))
+
+    results_global_active = np.zeros(len(degrees_of_freedom))
+    displacements = eig_vectors[:, n_mode]
+
+    for i, i_g in enumerate(unconstrained_dofs):
+        results_global_active[i_g] = displacements[i]
+
+    results_global = np.zeros(n_dof)
+    j = 0
+
+    for i in range(n_dof):
+
+        if active_dofs[i] == False:
+            results_global[i] = 0
+            j -= 1
+
+        else:
+            results_global[i] = results_global_active[j]
+        j += 1
+
+    plot_results(title),
+                 nodes_orig_coord[:, 0],
+                 nodes_orig_coord[:, 1],
+                 results_global,
+                 nodes_array,
+                 elements_array)

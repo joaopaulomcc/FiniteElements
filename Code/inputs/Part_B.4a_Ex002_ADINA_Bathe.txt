@@ -1,5 +1,6 @@
 #########################################################
-# This is the template for the input file.              #
+# João Paulo Monteiro Cruvinel da Costa                 #  
+# Parte B.4a - Exercício 2: Adina Bathe                 #
 # The input file is a .txt but it will be evaluated as  #
 # python code, every comment should be                  #
 # preceded by a #                                       #
@@ -9,14 +10,15 @@
 # TITLE - How you want to call your analysis
 # title = string
 
-title = "Simple_Analysis"
+title = "Adina Bathe"
 
 ###############################################################################
 # MATERIALS - The materials you will use in your analysis
 # material_0 = Material("Mat Name", mat_density, mat_elastic_modulus, mat_poisson_ratio)
 # material_0 = Material(string, float, float, float)
 
-AL7075_T6 = Material("AL7075-T6", 1000, 100e9, 0.33)
+aluminium = Material("aluminium", 2700, 70e9, 0.33)
+
 
 ###############################################################################
 # PROPERTIES - The properties you are going to use
@@ -27,7 +29,7 @@ AL7075_T6 = Material("AL7075-T6", 1000, 100e9, 0.33)
 # property_0 = Property("Prop_name", "Prop_Kind", Prop_Material, Section_Area, Section_Inertia)
 # property_0 = Property(string, string, Material_object, float, float)
 
-beam_0 = Property("Beam_0", "BEAM6", AL7075_T6, 0.004, 0.02**4/12)
+beam_0 = Property("Beam_0", "BEAM6", aluminium, 0.0005, 1.042e-7)
 
 ###############################################################################
 # LOADS - The loads you will apply
@@ -35,11 +37,12 @@ beam_0 = Property("Beam_0", "BEAM6", AL7075_T6, 0.004, 0.02**4/12)
 #   "NO_LOAD" = no load is applied, used to create points with no loads
 #   "CONCENTRATED" = concentrated load, can be applied to points
 #   "DISTRIBUTED" = distributed load, can be applied to Line
-# load_0 = Load("Load_Name", "Load_Kind", fx, fy, mz)
+# load_0 = Load("Load_Name", "Load_Kind", fx, fy, mz, frequency, phase)
 # load_0 = Load(string, string, float, float, float)
 
 no_load = Load("No_load", "NO_LOAD", 0, 0, 0, 0, 0)
-force_0 = Load("Force_0", "CONCENTRATED", 0, 100, 0, 0, 0)
+p1 = Load("p1", "DISTRIBUTED", 0, -2000, 0, 628, 0)
+p2 = Load("p2", "DISTRIBUTED", 0, 1000, 0, 314, 0)
 
 ###############################################################################
 # POINTS - The points used to create the geometry and apply loads
@@ -47,14 +50,23 @@ force_0 = Load("Force_0", "CONCENTRATED", 0, 100, 0, 0, 0)
 # point_0 = Point(int, float, float, Load_object)
 
 point_0 = Point(0, 0, 0, no_load)
-point_1 = Point(1, 1, 0, force_0)
+point_1 = Point(1, 0.5, 0, no_load)
+point_2 = Point(2, 0.75, 0, no_load)
+point_3 = Point(3, 1.0, 0, no_load)
+point_4 = Point(4, 1.25, 0, no_load)
+point_5 = Point(5, 2, 0, no_load)
+
 
 ###############################################################################
 # LINES - The lines used to create the geometry and apply loads
 # line_0 = Line(Line_number, Line_point0, Line_point1, Line_propery, Line_load, n_elements)
 # line_0 = Line(int, Point_object, Point_object, Property_object, Load_object, int)
 
-line_0 = Line(0, point_0, point_1, beam_0, no_load, 4)
+line_0 = Line(0, point_0, point_1, beam_0, no_load, 10)
+line_1 = Line(1, point_1, point_2, beam_0, p1, 5)
+line_2 = Line(2, point_2, point_3, beam_0, no_load, 5)
+line_3 = Line(3, point_3, point_4, beam_0, p2, 5)
+line_4 = Line(4, point_4, point_5, beam_0, no_load, 15)
 
 ###############################################################################
 # Constrains - applied to points, if a degree of freedom is not fixed,

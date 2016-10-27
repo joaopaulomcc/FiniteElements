@@ -1,6 +1,7 @@
 import time
 import numpy as np
 from scipy import linalg
+import math
 
 from classes import Material
 from classes import Property
@@ -22,11 +23,13 @@ from functions import damp_rayleigh
 from functions import damp_bismarck
 from element_functions import local_stiff_matrix
 from element_functions import local_mass_matrix
+from element_functions import local_geo_stiff_matrix
 from element_functions import global_force_vector
 
 from post_proc_functions import post_proc_static
 from post_proc_functions import post_proc_modal
 from post_proc_functions import post_proc_transdir
+from post_proc_functions import post_proc_buckling
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
@@ -114,7 +117,10 @@ star_time = time.clock()
 n_dof = 3 * len(nodes_array)  # Number of degrees of freedom
 stiff_global = np.zeros((n_dof, n_dof))  # Global Stiffness Matrix
 
-if analysis_type != "STATIC":
+if analysis_type == "BUCKLING":
+    geo_stiff_global = np.np.zeros((n_dof, n_dof))
+
+elif analysis_type != "STATIC":
     mass_global = np.zeros((n_dof, n_dof))  # Global Mass Matrix
 
 disp_global = np.zeros((n_dof, 1))  # Global Displacement vector
@@ -135,8 +141,13 @@ for element in elements_array:
         # Mark the active dofs in the active_dofs vector
         active_dofs[int(position)] = True
 
-    if analysis_type != "STATIC":
-        # Creates global mas matrix
+    if analysis_type == "BUCKLING":
+        # Creates Global Geometric Stiffness Matrix
+        geo_stiff_local = local_geo_stiff_matrix(element)
+        local2global(geo_stiff_local, geo_stiff_global, map_vector)
+
+    elif analysis_type != "STATIC":
+        # Creates global mass matrix
         mass_local = local_mass_matrix(element)
         local2global(mass_local, mass_global, map_vector)
 
@@ -160,7 +171,11 @@ for i, value in enumerate(active_dofs):
 stiff_global = np.delete(stiff_global, inactive_dofs, 0)
 stiff_global = np.delete(stiff_global, inactive_dofs, 1)
 
-if analysis_type != "STATIC":
+if analysis_type == "BUCKLING":
+    geo_stiff_global = np.delete(geo_stiff_global, inactive_dofs, 0)
+    geo_stiff_global = np.delete(geo_stiff_global, inactive_dofs, 1)
+
+elif analysis_type != "STATIC":
     mass_global = np.delete(mass_global, inactive_dofs, 0)
     mass_global = np.delete(mass_global, inactive_dofs, 1)
 
@@ -216,6 +231,9 @@ if analysis_type == "TRANSDIR":
     #                                         are zero but are calculated
     #                                         as very small negative numbers
 
+    #Calculates Maximum time step
+    max_t_step = (1 / (max(freq_vector) * math.pi))
+
     # Calculates Damping Matrix
     damp_matrix = get_damp_matrix(mass_global,
                                   stiff_global,
@@ -241,7 +259,7 @@ if analysis_type == "TRANSDIR":
 
         try:
             print("\nSimulation Parameters:")
-            t_step = float(input("Enter time step: "))
+            t_step = float(input("Enter time step (max = %.4e):" % max_t_step))
             t_0 = float(input("Enter initial time: "))
             t_f = float(input("Enter final time: "))
             break
@@ -287,7 +305,11 @@ else:
                                  len(unconstrained_dofs)))
     red_force_vector = np.zeros((len(unconstrained_dofs), 1))
 
-    if analysis_type != "STATIC":
+    if analysis_type == "BUCKLING":
+        red_geo_stiff_matrix = np.zeros((len(unconstrained_dofs),
+                                         len(unconstrained_dofs)))
+
+    elif analysis_type != "STATIC":
         red_mass_matrix = np.zeros((len(unconstrained_dofs),
                                     len(unconstrained_dofs)))
 
@@ -296,7 +318,10 @@ else:
         for j, j_g in enumerate(unconstrained_dofs):
             red_stiff_matrix[i][j] = stiff_global[i_g][j_g]
 
-            if analysis_type != "STATIC":
+            if analysis_type == "BUCKLING":
+                red_geo_stiff_matrix[i][j] = geo_stiff_global[i_g][j_g]
+
+            elif analysis_type != "STATIC":
                 red_mass_matrix[i][j] = mass_global[i_g][j_g]
 
     print("Time used: " + str(round(time.clock() - star_time, 4)) + "s")
@@ -316,7 +341,7 @@ if analysis_type == "STATIC":
 ###############################################################################
 # Calculates Natural Frequencies and Modes for Modal Analysis
 
-if analysis_type == "MODAL":
+elif analysis_type == "MODAL":
     print("\nCalculating System natural frequencies and modes ...")
     star_time = time.clock()
 
@@ -331,6 +356,16 @@ if analysis_type == "MODAL":
                                   red_stiff_matrix,
                                   eig_vectors,
                                   freq_vector)
+###############################################################################
+# Calculates Critical load for Buckling
+elif analysis_type == "BUCKLING":
+    print("\nCalculating SCritical load for Buckling ...")
+    star_time = time.clock()
+
+    [eig_values, eig_vectors] = linalg.eig(red_stiff_matrix,
+                                           red_geo_stiff_matrix)
+
+    print("Time used: " + str(round(time.clock() - star_time, 4)) + "s")
 
 ###############################################################################
 ###                                                                         ###
@@ -388,6 +423,21 @@ elif analysis_type == "TRANSDIR":
                        time_arr,
                        nodes_array,
                        elements_array)
+
+
+elif analysis_type == "BUCKLING":
+
+    post_proc_buckling(title,
+                       nodes_orig_coord,
+                       eig_vectors,
+                       freq_vector,
+                       n_dof,
+                       unconstrained_dofs,
+                       active_dofs,
+                       degrees_of_freedom,
+                       nodes_array,
+                       elements_array)
+
 
 
 
