@@ -1,21 +1,32 @@
-# -*- coding: utf-8 -*-
-from scipy import integrate
-from pylab import * # for plotting commands
+from functions import damp_rayleigh
+from functions import damp_bismarck
+import numpy as np
+import scipy as sc
 
-def rlc(A,t):
-    Vc,x=A
-    V = 1.0 #voltageSource
-    R = 5.0
-    L=100.0e-9 #100nH
-    C = 1.0e-9 #1nF
-    res=array([x,(V-Vc-(x*R*C))/(L*C)])
-    return res
+m = np.array([[400, 0, 0],
+              [0, 400, 0],
+              [0, 0, 200]])
 
-time = linspace(0.0,0.6e-6,1001)
-vc,x = integrate.odeint(rlc,[0.0,0.0],time).T
-i=1.0e-9*x
-figure()
-plot(time,vc)
-xlabel('t')
-ylabel('Vc')
-show()
+m = (1/386) * m
+
+k = np.array([[2, -1, 0],
+              [-1, 2, -1],
+              [0, -1, 1]])
+
+k = 610 * k
+
+eigvalues, eigvectors = sc.linalg.eig(k, m)
+
+freq = abs(np.sqrt(eigvalues))
+
+print(freq)
+
+damp_matrix, damp_vector =  damp_rayleigh(m, k, freq)
+
+print(damp_matrix)
+print(damp_vector)
+
+damp_matrix, damp_vector =  damp_bismarck(m, k, freq)
+
+print(damp_matrix)
+print(damp_vector)

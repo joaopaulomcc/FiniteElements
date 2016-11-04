@@ -168,7 +168,7 @@ def damp_rayleigh(mass_matrix, stiff_matrix, freq_vector):
     freq_0 = freq_vector[mode_0]
     freq_1 = freq_vector[mode_1]
 
-    alpha_beta = ((2 * freq_0 * freq_1) / (freq_1**2 - freq_0**2)) * np.array([[freq_1, -freq_0], [-1 / freq_1, 1 / freq_0]]) * np.array([[damp_0], [damp_1]])
+    alpha_beta = ((2 * freq_0 * freq_1) / (freq_1**2 - freq_0**2)) * np.dot(np.array([[freq_1, -freq_0], [-1 / freq_1, 1 / freq_0]]), np.array([[damp_0], [damp_1]]))
 
     alpha = alpha_beta[0][0]
     beta = alpha_beta[1][0]
@@ -197,6 +197,11 @@ def damp_bismarck(mass_matrix, eig_vectors, freq_vector):
         m_ii = np.dot(np.dot(eig_vector_tp, mass_matrix), eig_vector)
         beta = 2 * damp_vector[i] * freq_vector[i] * m_ii
         damp_matrix[i][i] = 1 / beta
+
+    damp_matrix = np.dot(np.dot(eig_vectors, damp_matrix),
+                         eig_vectors.transpose())
+
+    damp_matrix = linalg.inv(damp_matrix)
 
     return damp_matrix, damp_vector
 

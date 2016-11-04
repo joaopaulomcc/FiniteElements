@@ -10,7 +10,7 @@ def plot_results(title,
                  nodes_array,
                  elements_array):
 
-    scale_factor = float(input("\nEnter the Scale Factor for the displacements: "))
+    scale_factor = float(input("\nEnter the Scale Factor for the displacements plot: "))
 
     if scale_factor == 0:
         print("ERROR: Scale Factor cannot be zero, set to 1")
@@ -218,12 +218,11 @@ def post_proc_buckling(title,
                        active_dofs,
                        degrees_of_freedom,
                        nodes_array,
-                       elements_array)
+                       elements_array):
 
     print("Buckling Critical Load:")
-    print("%.4e N" % max(eig_values))
-
-    n_mode = int(eig_values.index(max(eig_values)))
+    print("%.4e N" % abs(min(eig_values)))
+    n_mode = int(np.argmin(eig_values, axis=0))
 
     results_global_active = np.zeros(len(degrees_of_freedom))
     displacements = eig_vectors[:, n_mode]
@@ -244,7 +243,7 @@ def post_proc_buckling(title,
             results_global[i] = results_global_active[j]
         j += 1
 
-    plot_results(title),
+    plot_results(title,
                  nodes_orig_coord[:, 0],
                  nodes_orig_coord[:, 1],
                  results_global,

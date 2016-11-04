@@ -1,6 +1,6 @@
 #########################################################
 # João Paulo Monteiro Cruvinel da Costa                 #  
-# Parte B.3 - Exercício 1: Meirovitch 10.3              #
+# Parte B.4a - Exercício 2: Adina Bathe                 #
 # The input file is a .txt but it will be evaluated as  #
 # python code, every comment should be                  #
 # preceded by a #                                       #
@@ -10,16 +10,15 @@
 # TITLE - How you want to call your analysis
 # title = string
 
-title = "Part_B.3_Ex001"
+title = "Flambagem"
 
 ###############################################################################
 # MATERIALS - The materials you will use in your analysis
 # material_0 = Material("Mat Name", mat_density, mat_elastic_modulus, mat_poisson_ratio)
 # material_0 = Material(string, float, float, float)
 
-mat_0 = Material("mat_0", 1, 1, 0.33)
-mat_1 = Material("mat_1", 1.2, 1.44, 0.33)
-mat_2 = Material("mat_2", 1.4, 1.96, 0.33)
+aluminium = Material("aluminium", 2700, 12, 0.33)
+
 
 ###############################################################################
 # PROPERTIES - The properties you are going to use
@@ -30,9 +29,7 @@ mat_2 = Material("mat_2", 1.4, 1.96, 0.33)
 # property_0 = Property("Prop_name", "Prop_Kind", Prop_Material, Section_Area, Section_Inertia)
 # property_0 = Property(string, string, Material_object, float, float)
 
-beam_0 = Property("Beam_0", "BEAM4", mat_0, 1, 1)
-beam_1 = Property("Beam_1", "BEAM4", mat_1, 1, 1)
-beam_2 = Property("Beam_2", "BEAM4", mat_2, 1, 1)
+beam_0 = Property("Beam_0", "BEAM4", aluminium, 0.0005, 1/12)
 
 ###############################################################################
 # LOADS - The loads you will apply
@@ -51,11 +48,7 @@ no_load = Load("No_load", "NO_LOAD", 0, 0, 0, 0, 0)
 # point_0 = Point(int, float, float, Load_object)
 
 point_0 = Point(0, 0, 0, no_load)
-point_1 = Point(1, 0.2, 0, no_load)
-point_2 = Point(2, 0.4, 0, no_load)
-point_3 = Point(3, 0.6, 0, no_load)
-point_4 = Point(4, 0.8, 0, no_load)
-point_5 = Point(5, 1.0, 0, no_load)
+point_1 = Point(1, 1, 0, no_load)
 
 ###############################################################################
 # LINES - The lines used to create the geometry and apply loads
@@ -63,10 +56,6 @@ point_5 = Point(5, 1.0, 0, no_load)
 # line_0 = Line(int, Point_object, Point_object, Property_object, Load_object, int)
 
 line_0 = Line(0, point_0, point_1, beam_0, no_load, 10)
-line_1 = Line(1, point_1, point_2, beam_1, no_load, 10)
-line_2 = Line(2, point_2, point_3, beam_2, no_load, 10)
-line_3 = Line(1, point_3, point_4, beam_1, no_load, 10)
-line_4 = Line(4, point_4, point_5, beam_0, no_load, 10)
 
 ###############################################################################
 # Constrains - applied to points, if a degree of freedom is not fixed,
@@ -74,5 +63,5 @@ line_4 = Line(4, point_4, point_5, beam_0, no_load, 10)
 # encastre_0 = Constrain("Constrain_name", Constrain_point, x, y, rz)
 # encastre_0 = Constrain(string, Point_object, float or string, float or string, float or string)
 
-pin_0 = Constrain("pin_0", point_0, 0, 0, "FREE")
-pin_1 = Constrain("pin_1", point_5, 0, 0, "FREE")
+pin_0 = Constrain("pin_0", point_0, 0, 0, 0)
+pin_1 = Constrain("pin_0", point_1, 0, 0, "FREE")

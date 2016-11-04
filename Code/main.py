@@ -14,6 +14,7 @@ from classes import Node
 from classes import Element
 
 from Transient import transient
+from Transient import modal_transient
 
 from functions import create_mesh
 from functions import local2global
@@ -118,7 +119,7 @@ n_dof = 3 * len(nodes_array)  # Number of degrees of freedom
 stiff_global = np.zeros((n_dof, n_dof))  # Global Stiffness Matrix
 
 if analysis_type == "BUCKLING":
-    geo_stiff_global = np.np.zeros((n_dof, n_dof))
+    geo_stiff_global = np.zeros((n_dof, n_dof))
 
 elif analysis_type != "STATIC":
     mass_global = np.zeros((n_dof, n_dof))  # Global Mass Matrix
@@ -303,7 +304,7 @@ else:
 
     red_stiff_matrix = np.zeros((len(unconstrained_dofs),
                                  len(unconstrained_dofs)))
-    red_force_vector = np.zeros((len(unconstrained_dofs), 1))
+    red_force_vector = np.zeros((len(unconstrained_dofs), 3))
 
     if analysis_type == "BUCKLING":
         red_geo_stiff_matrix = np.zeros((len(unconstrained_dofs),
@@ -315,6 +316,9 @@ else:
 
     for i, i_g in enumerate(unconstrained_dofs):
         red_force_vector[i][0] = force_global[i_g][0]
+        red_force_vector[i][1] = force_global[i_g][1]
+        red_force_vector[i][2] = force_global[i_g][2]
+
         for j, j_g in enumerate(unconstrained_dofs):
             red_stiff_matrix[i][j] = stiff_global[i_g][j_g]
 
@@ -341,7 +345,7 @@ if analysis_type == "STATIC":
 ###############################################################################
 # Calculates Natural Frequencies and Modes for Modal Analysis
 
-elif analysis_type == "MODAL":
+if analysis_type == "MODAL" or analysis_type == "TRANSMOD":
     print("\nCalculating System natural frequencies and modes ...")
     star_time = time.clock()
 
@@ -356,16 +360,50 @@ elif analysis_type == "MODAL":
                                   red_stiff_matrix,
                                   eig_vectors,
                                   freq_vector)
+
+    if analysis_type == "TRANSMOD":
+
+        while True:
+
+            try:
+                print("\nSimulation Parameters:")
+                t_step = float(input("Enter time step: "))
+                t_0 = float(input("Enter initial time: "))
+                t_f = float(input("Enter final time: "))
+                break
+
+            except ValueError:
+                print("ERROR: The times mus be numbers")
+
+        print("\nCalculating transient response ...")
+        star_time = time.clock()
+
+        modal_transient(red_mass_matrix,
+                        damp_matrix,
+                        red_stiff_matrix,
+                        red_force_vector,
+                        eig_vectors,
+                        t_0,
+                        t_f,
+                        t_step)
+
+        print("Time used: " + str(round(time.clock() - star_time, 4)) + "s")
+
 ###############################################################################
 # Calculates Critical load for Buckling
-elif analysis_type == "BUCKLING":
-    print("\nCalculating SCritical load for Buckling ...")
+if analysis_type == "BUCKLING":
+    print("\nCalculating Critical load for Buckling ...")
     star_time = time.clock()
 
     [eig_values, eig_vectors] = linalg.eig(red_stiff_matrix,
                                            red_geo_stiff_matrix)
 
+    # print(red_stiff_matrix)
+    # print(red_geo_stiff_matrix)
+    # print(eig_values)
+    freq_vector = np.sqrt(abs(eig_values))
     print("Time used: " + str(round(time.clock() - star_time, 4)) + "s")
+
 
 ###############################################################################
 ###                                                                         ###
@@ -430,7 +468,7 @@ elif analysis_type == "BUCKLING":
     post_proc_buckling(title,
                        nodes_orig_coord,
                        eig_vectors,
-                       freq_vector,
+                       eig_values,
                        n_dof,
                        unconstrained_dofs,
                        active_dofs,

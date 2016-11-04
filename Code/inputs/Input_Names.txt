@@ -6,3 +6,7 @@ inputs/Part_B.4a_Ex002_Bang_8.10.1.txt
 inputs/Part_B.4a_Ex002_Bang_8.10.3.txt
 inputs/Part_B.4a_Ex002_Bang_8.11.1.txt
 inputs/Part_B.4a_Ex002_ADINA_Bathe.txt
+inputs/Part_B.4b_Ex001_Flambagem_1.txt
+inputs/Part_B.4b_Ex001_Flambagem_2.txt
+inputs/Part_B.4b_Ex001_Flambagem_3.txt
+inputs/Part_B.4b_Ex001_Flambagem_4.txt

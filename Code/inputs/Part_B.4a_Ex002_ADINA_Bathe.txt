@@ -29,7 +29,7 @@ aluminium = Material("aluminium", 2700, 70e9, 0.33)
 # property_0 = Property("Prop_name", "Prop_Kind", Prop_Material, Section_Area, Section_Inertia)
 # property_0 = Property(string, string, Material_object, float, float)
 
-beam_0 = Property("Beam_0", "BEAM6", aluminium, 0.0005, 1.042e-7)
+beam_0 = Property("Beam_0", "BEAM4", aluminium, 0.0005, 1.042e-7)
 
 ###############################################################################
 # LOADS - The loads you will apply
@@ -41,8 +41,8 @@ beam_0 = Property("Beam_0", "BEAM6", aluminium, 0.0005, 1.042e-7)
 # load_0 = Load(string, string, float, float, float)
 
 no_load = Load("No_load", "NO_LOAD", 0, 0, 0, 0, 0)
-p1 = Load("p1", "DISTRIBUTED", 0, -2000, 0, 628, 0)
-p2 = Load("p2", "DISTRIBUTED", 0, 1000, 0, 314, 0)
+p1 = Load("p1", "DISTRIBUTED", 0, -2000, 0, 628, -math.pi / 2)
+p2 = Load("p2", "DISTRIBUTED", 0, 1000, 0, 314, -math.pi / 2)
 
 ###############################################################################
 # POINTS - The points used to create the geometry and apply loads
